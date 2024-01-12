@@ -11,7 +11,7 @@ use App\Http\Controllers\InvTxnController;
 use App\Http\Controllers\vnDetTxnController;
 use App\Http\Controllers\intArticuloController;
 use App\Http\Controllers\cjtTxnController;
-
+use Carbon\Carbon;
 class vntTxnController extends Controller
 {
     public function guardarVenta(Request $request)
@@ -25,7 +25,7 @@ class vntTxnController extends Controller
             $vntCredito = $request->vntCredito;
             $fpId = $request->fpId;
             $vntActivo = $request->vntActivo;
-            // $vntFechaCreacion = $request->vntFechaCreacion;
+            $vntFechaCreacion = $request->vntFechaCreacion;
 
 
             // Verificar si existen ventas 
@@ -66,6 +66,10 @@ class vntTxnController extends Controller
 
             $tablaVntTxn = 'vnttxn';
             // Insertar datos en la tabla vnttxn usando el controlador VntTxnController
+            $vntFechaCreacion = Carbon::parse($vntFechaCreacion); // Convierte la fecha existente a objeto Carbon
+            $vntFechaCreacion->addHours(now()->hour); // Agrega la hora actual
+            $vntFechaCreacion->addMinutes(now()->minute); // Agrega los minutos actuales
+
             $vntId = DB::table($tablaVntTxn)->insertGetId([
                 'cliId' => $cliId,
                 'userId' => $userId,
@@ -74,7 +78,7 @@ class vntTxnController extends Controller
                 'vntCredito' => $vntCredito,
                 'fpId' => $fpId,
                 'vntActivo' => $vntActivo,
-                'vntFechaCreacion' => now(),
+                'vntFechaCreacion' => $vntFechaCreacion //now(),
             ]);
 
             // Insertar detalles de los productos vendidos en la tabla vndettxn usando el controlador vnDetTxnController
@@ -102,10 +106,6 @@ class vntTxnController extends Controller
                 $vndCantidad = $detalle['vndCantidad'];
                 $intArticuloController->disminuirCantidadArticulo($artId, $vndCantidad);
             }
-
-
-
-
             // Registrar en la bitácora usando el controlador bitacoraController
             $bitacoraController->insertarBitacora($tablaVntTxn, $vntId, $userId, 'Creación de registro', 'Nueva Venta' . "-" . $nuevoVntNumero);
 
@@ -245,33 +245,30 @@ class vntTxnController extends Controller
 
     public function detalleVenta(Request $request)
     {
-        $vntNumero= $request->vntNumero;
+        $vntNumero = $request->vntNumero;
         try {
             $resultado = DB::table('vnttxn')
-            ->join('vndettxn', 'vnttxn.vntId', '=', 'vndettxn.vntid')
-            ->join('intarticulo', 'vndettxn.artId', '=', 'intarticulo.artId')
-            ->join('gntcliente', 'vnttxn.cliId', '=', 'gntcliente.cliId')
-            ->select(
-                'gntcliente.cliNombre as nombre',
-                'gntcliente.cliApp as app',
-                'gntcliente.cliApm as apm',
-                'vnttxn.vntFechaCreacion',
-                'vntNumero',
-                'intarticulo.artNombre',
-                'vndettxn.vndCantidad',
-                'vndettxn.vndPrecioVenta',
-                'vndettxn.vndDescuento',
-                DB::raw('IF(vndettxn.vndDescuento = 0, (vndettxn.vndCantidad * vndettxn.vndPrecioVenta), (vndettxn.vndCantidad * vndettxn.vndDescuento)) as subtotal')
-            )
-            ->where('vntNumero', '=', $vntNumero)
-            ->where('vntActivo', '=', 1)
-            ->get();
-        return response()->json($resultado);
+                ->join('vndettxn', 'vnttxn.vntId', '=', 'vndettxn.vntid')
+                ->join('intarticulo', 'vndettxn.artId', '=', 'intarticulo.artId')
+                ->join('gntcliente', 'vnttxn.cliId', '=', 'gntcliente.cliId')
+                ->select(
+                    'gntcliente.cliNombre as nombre',
+                    'gntcliente.cliApp as app',
+                    'gntcliente.cliApm as apm',
+                    'vnttxn.vntFechaCreacion',
+                    'vntNumero',
+                    'intarticulo.artNombre',
+                    'vndettxn.vndCantidad',
+                    'vndettxn.vndPrecioVenta',
+                    'vndettxn.vndDescuento',
+                    DB::raw('IF(vndettxn.vndDescuento = 0, (vndettxn.vndCantidad * vndettxn.vndPrecioVenta), (vndettxn.vndCantidad * vndettxn.vndDescuento)) as subtotal')
+                )
+                ->where('vntNumero', '=', $vntNumero)
+                ->where('vntActivo', '=', 1)
+                ->get();
+            return response()->json($resultado);
         } catch (\Exception $e) {
             return response()->json(['mensaje' => 'Error al obtener el Detalle de Venta: ' . $e->getMessage()], 500);
         }
-
-
-    
     }
 }

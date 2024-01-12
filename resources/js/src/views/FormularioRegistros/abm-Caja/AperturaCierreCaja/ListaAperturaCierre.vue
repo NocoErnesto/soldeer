@@ -23,13 +23,7 @@
                             </b-button>
                         </b-col>
 
-                        <b-col sm="4" md="4" xl="4" lg="4">
-                            <b-alert variant="warning" show>
-                                <h4 class="alert-heading">
-                                    Debe Realizar la Apertura de Caja
-                                </h4>
-                            </b-alert>
-                        </b-col>
+
                         <b-col sm="4" md="4" xl="4" lg="4">
                             <b-form-group label-for="filter-input">
                                 <b-input-group>
@@ -43,21 +37,13 @@
                             </b-form-group>
                         </b-col>
                     </b-row>
-
-
                     <b-row>
                         <b-col>
                             <!-- Tabla --> <!-- Listado -->
                             <b-table id="tabla-lista-apertura" :items="items" :fields="fields" :filter="filter"
                                 @filtered="onFiltered" hover responsive="sm" :busy="isBusy" outlined
                                 :sticky-header="stickyHeader">
-                                <!-- <template #cell(artCantidad)="data">
-                                    <b-badge pill :variant="data.item.artCantMin">
-                                        <div class="custom-badge d-flex align-items-center">
-                                            <span>{{ data.item.artCantidad }}</span>
-                                        </div>
-                                    </b-badge>
-                                </template> -->
+
                                 <template #cell(Acción)="row">
                                     <b-row>
                                         <b-col>
@@ -85,6 +71,13 @@
                                             </b-button>
                                         </b-col>
                                     </b-row>
+                                </template>
+                                <template #cell(cheked)="data">
+                                    <b-form-checkbox :checked="data.item.checked" v-model="data.item.checked"
+                                        @change="clickAccion(data.item, ('cierre'))"
+                                        :class="{ 'custom-control-success': data.item.checked, 'custom-control-danger': !data.item.checked }"
+                                        :disabled="data.item.checked">
+                                    </b-form-checkbox>
                                 </template>
                                 <template #table-busy>
                                     <div class="text-center text-danger my-2">
@@ -193,7 +186,7 @@ export default {
                 // Transition name
                 name: "flip-list",
             },
-
+            confirmCheked: false,
             mesReporte: "",
             shows: true,
             isBusy: false,
@@ -217,6 +210,7 @@ export default {
                 { key: "acFechaCierre", label: "F. CIERRE", sortable: true },
                 { key: "nombre_usuario", label: "USUARIO", sortable: true },
                 { key: "Acción", sortable: false },
+                { key: "cheked", label: "CERRAR" },
             ],
 
             show: false,
@@ -264,38 +258,46 @@ export default {
             if (accion === "eliminar") {
                 this.ControlaEliminar(item)
             }
-        },
-        UsuarioAlerta(variant) {
+            if (accion === "cierre") {
+                debugger
+                this.confirmCierreCaja(item)
 
-            if (variant === "success") {
-                this.$swal({
-                    title: "Buen Trabajo",
-                    text: "Operacion Exitosa",
-                    icon: variant,
-                    customClass: {
-                        confirmButton: "btn btn-success",
-                    },
-                    showClass: {
-                        popup: "animate__animated animate__bounceIn",
-                    },
-                    buttonsStyling: true,
-                });
-            } else {
-                this.$swal({
-                    title: "¡Error!",
-                    text: "No se Logro Realizar la Operacíon",
-                    icon: variant,
-                    customClass: {
-                        confirmButton: "btn btn-danger",
-                    },
-                    showClass: {
-                        popup: "animate__animated animate__tada",
-                    },
-                    buttonsStyling: true,
-                });
             }
         },
+        UsuarioAlerta(variant, msj) {
+            let title, confirmButtonClass, showClass;
+
+            if (variant === "success") {
+                title = "Buen Trabajo";
+                confirmButtonClass = "btn btn-success";
+                showClass = "animate__animated animate__bounceIn";
+            } else if (variant === "error") {
+                title = "¡Error!";
+                confirmButtonClass = "btn btn-danger";
+                showClass = "btn btn-danger animate__animated animate__rubberBand";
+            } else if (variant === "warning") {
+                title = "Precaución";
+                confirmButtonClass = "btn btn-warning";
+                showClass = "animate__animated animate__wobble";
+            } else {
+                // Puedes agregar más casos según tus necesidades.
+            }
+
+            this.$swal({
+                title: title,
+                text: msj,
+                icon: variant,
+                customClass: {
+                    confirmButton: confirmButtonClass,
+                },
+                showClass: {
+                    confirmButton: showClass,
+                },
+                buttonsStyling: true,
+            });
+        },
         ControlaEliminar(item) {
+
             this.boxTwo = "";
             this.$bvModal
                 .msgBoxConfirm(
@@ -322,6 +324,7 @@ export default {
             let me = this;
             const axios = require("axios").default;
             const params = new URLSearchParams();
+
             params.append('artId', item["artId"]);
             var url = "api/auth/eliminarArticulo";
             me.isBusy = true;
@@ -360,24 +363,6 @@ export default {
             me.iExiste = 0;
             me.estado = "";
         },
-        makeToast(variant) {
-            let me = this;
-            if (variant === "success") {
-                this.$bvToast.toast("Registro Exitoso ", {
-                    title: `HR Analytics`,
-                    variant,
-                    solid: true,
-                    appendToast: true,
-                });
-            } else {
-                this.$bvToast.toast("Error en el Registro ", {
-                    title: `HR Analytics`,
-                    variant,
-                    solid: true,
-                    appendToast: true,
-                });
-            }
-        },
 
         obtenerAperturasCaja() {
             let me = this;
@@ -393,10 +378,14 @@ export default {
                 .get(url)
                 .then(function (response) {
                     var resp = response.data;
+                    var estado = false;
                     for (let i = 0; i < resp.length; i++) {
+
+                        if (resp[i].acFechaCierre === null) {
+                            estado = false
+                        } else { estado = true }
                         lista.push({
                             id: resp[i].acId,
-                            acId: resp[i].acId,
                             cajId: resp[i].cajId,
                             userId: resp[i].userId,
                             acMontoApertura: resp[i].acMontoApertura,
@@ -406,8 +395,8 @@ export default {
                             acActivo: resp[i].acActivo,
                             acFechaCreacio: resp[i].acFechaCreacion,
                             nombre_caja: resp[i].nombre_caja,
-                            nombre_usuario: resp[i].nombre_usuario
-
+                            nombre_usuario: resp[i].nombre_usuario,
+                            checked: estado
                         });
                     }
                     me.items = lista;
@@ -418,6 +407,91 @@ export default {
                     alert("error al obtener los datos Lista Articulo " + e);
                 });
         },
+
+        confirmCierreCaja(item) {
+            this.$swal({
+                title: '¿Está seguro?',
+                text: "¡No podrás revertir esto!  Asegúrate de completar todas las transacciones pendientes ",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, Continuar!',
+                cancelButtonText: 'Cancelar',
+                customClass: {
+                    confirmButton: 'btn btn-outline-warning',
+                    cancelButton: 'btn btn-outline-danger ml-1',
+                },
+                buttonsStyling: false,
+            }).then(result => {
+                if (result.value) {
+                    this.cerrarCajaFecha(item)
+                } else if (result.dismiss === 'cancel') {
+                    this.obtenerAperturasCaja()
+                    this.$swal({
+                        title: 'Operación Cancelada',
+                        text: 'Puedes seguir realizando ventas.',
+                        icon: 'error',
+                        customClass: {
+                            confirmButton: 'btn btn-success',
+                        },
+                    })
+                }
+            })
+        },
+
+
+
+
+
+
+
+
+
+
+
+        async cerrarCajaFecha(item) {
+            try {
+
+                let me = this;
+                const fechaHoraCompleta = item["acFechaApertura"];
+                const fechaCompleta = new Date(fechaHoraCompleta);
+
+                const dia = fechaCompleta.getDate();
+                const mes = fechaCompleta.getMonth() + 1; // Agregamos 1 porque los meses comienzan desde 0
+                const anio = fechaCompleta.getFullYear();
+
+                // Formatear la fecha en el formato deseado (YYYY-MM-DD)
+                const fechaSolo = `${anio}-${mes < 10 ? '0' : ''}${mes}-${dia < 10 ? '0' : ''}${dia}`;
+                me.showOverlay = true;
+
+                const formData = new FormData();
+                me.items = [];
+
+                me.loaded = false;
+                me.isBusy = true;
+
+                formData.append('cajId', item["id"]);
+                formData.append('userId', this.$store.state.app.UsuarioId);
+                formData.append("acFechaApertura", fechaSolo);
+
+                const response = await this.$http.post("cerrarCajaFecha", formData)
+                if (response.status === 201) {
+
+                    this.showOverlay = false;
+                    me.UsuarioAlerta("success", response.data.mensaje);
+                    me.obtenerAperturasCaja()
+                    me.isBusy = false;
+                }
+
+            } catch (error) {
+
+                this.showOverlay = false;
+                this.UsuarioAlerta("error", error.response.data.error);
+            }
+        },
+
+
+
+
         onContext(ctx) {
             // The date formatted in the locale, or the `label-no - date - selected` string
             this.formatted = ctx.selectedFormatted;

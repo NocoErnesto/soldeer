@@ -1,22 +1,43 @@
 <template>
     <section>
+
+        <b-modal ref="frmCliente" id="frmCliente" ok-title="Cerrar" ok-variant="danger" ok-only size="md" centered
+            title="Registro de Cliente" no-close-on-backdrop @ok="cbxCliente" @hidden="cerrarVentana">
+            <!-- Diseño del Formulario -->
+
+
+            <frm-cliente></frm-cliente>
+
+
+        </b-modal>
+
         <b-row>
+
+
             <b-col sm="12" md="3" xl="3">
                 <b-row>
                     <b-col>
                         <b-card border-variant="info">
 
                             <b-row>
-                                <b-col sm="12" md="12" xl="12">
+                                <b-col sm="10" md="10" xl="10" lg="10">
 
                                     <b-form-group>
                                         <label for="tipoPago">Cliente</label>
-
                                         <v-select v-model="selectedCliente" :options="gntCliente" label="title"
                                             placeholder="Seleccionar Cliente" class="select-size-lg" :max-options="3">
 
                                         </v-select>
                                     </b-form-group>
+                                </b-col>
+                                <b-col sm="2" md="2" xl="2" lg="2">
+                                    <b-form-group>
+                                        <b-button v-ripple.400="'rgba(40, 199, 111, 0.15)'" variant="flat-success"
+                                            v-b-modal.frmCliente class="btn-icon">
+                                            <feather-icon icon="UserPlusIcon" />
+                                        </b-button>
+                                    </b-form-group>
+
                                 </b-col>
                             </b-row>
                             <b-row>
@@ -40,6 +61,18 @@
                                             placeholder="Seleccionar" class="select-size-lg" :max-options="3">
                                         </v-select>
                                     </b-form-group>
+                                </b-col>
+                            </b-row>
+                            <b-row>
+                                <b-col sm="12" md="12" xl="12">
+                                    <b-form-group>
+                                        <label for="tipoPago">Fecha de Venta:</label>
+                                        <!-- <b-form-datepicker v-model="txtFechaVenta"></b-form-datepicker> -->
+                                        <flat-pickr v-model="txtFechaVenta" class="form-control" />
+                                    </b-form-group>
+
+
+
                                 </b-col>
                             </b-row>
                             <b-row>
@@ -82,7 +115,7 @@
                                         <v-select ref="selectedProductos" v-model="selectedProductos"
                                             :options="booksProductos" label="title" placeholder="Seleccionar"
                                             class="select-size-lg" :max-options="3" @input="cargarProducto()">
-                                            <template #option="{ title, icon, precioV, cantidad }">
+                                            <template #option="{ title, icon, precioV, cantidad, marca }">
 
                                                 <div class="d-flex align-items-center">
                                                     <div class="product-image-container">
@@ -93,6 +126,7 @@
                                                         <strong>{{ title }}</strong>
                                                         <div class="text-secondary ">Precio: {{ precioV }}</div>
                                                         <div class="text-secondary ">Stock: {{ cantidad }}</div>
+                                                        <div class="text-secondary">Marca:{{ marca }}</div>
                                                     </div>
                                                 </div>
                                             </template>
@@ -105,7 +139,7 @@
                                     <!-- Tabla --> <!-- Listado -->
                                     <b-table id="tabla-lista-retrasos" :items="itemsAgregado" :fields="fieldsAgregado"
                                         :filter="filter" @filtered="onFiltered" hover :busy="isBusy" :bordered="true"
-                                        :fixed="true" :sticky-header="stickyHeader" :head-variant="headVariant">
+                                        outlined stacked="sm" small :style="{ fontSize: fontSize }">
 
                                         <template #cell(cantidad)="row">
                                             <b-form-input v-model="row.value" type="number" min="1"
@@ -158,7 +192,7 @@
                             <span class="align-middle">{{ $store.state.app.botonTexto }} </span>
                         </b-button>
                     </b-col>
-                    <button @click="generatePDF">Generar PDF</button>
+
                 </b-row>
             </b-col>
         </b-row>
@@ -173,6 +207,7 @@ import {
     BImg,
     BFormFile,
     BFormDatepicker,
+
     BRow,
     BModal,
     VBModal,
@@ -207,8 +242,11 @@ import {
 import Ripple from "vue-ripple-directive";
 import vSelect from 'vue-select'
 import ToastificationContent from '@core/components/toastification/ToastificationContent.vue'
+import flatPickr from 'vue-flatpickr-component'
+
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import FrmCliente from '../abm-Cliente/frmCliente.vue';
 export default {
     components: {
         VBTooltip,
@@ -220,6 +258,7 @@ export default {
         BFormInvalidFeedback,
         BOverlay,
         BFormDatepicker,
+        flatPickr,
         BInputGroupAppend,
         BInputGroup,
         BRow,
@@ -246,7 +285,8 @@ export default {
         BFormDatalist,
         BBadge,
         BSpinner,
-        BFormSpinbutton
+        BFormSpinbutton,
+        FrmCliente
     },
     data() {
         return {
@@ -261,6 +301,7 @@ export default {
             cjtReferencia: 0, // Monto recibido
             cambio: 0, // Cambio a entregar
             vntNumero: "",
+            txtFechaVenta: null,
             isBusy: false,
             filter: "",
             stickyHeader: true,
@@ -295,6 +336,9 @@ export default {
             this.cambio = nuevoMonto - this.totalPagar
 
         }
+
+
+
     },
     directives: {
         "b-tooltip": VBTooltip,
@@ -305,6 +349,13 @@ export default {
         this.cbxArticulo()
         this.cbxFormaPago()
         this.cbxCliente()
+
+        const movil = window.innerWidth;
+        if (movil <= 576) {
+            // Dispositivo móvil pequeño
+            this.fontSize = 'xx-small'; // Tamaño de fuente pequeño
+        }
+
     },
     computed: {
 
@@ -330,7 +381,7 @@ export default {
                 // Crear un nuevo documento PDF
                 const doc = new jsPDF();
                 let me = this;
-
+                debugger
                 // Agregar el logo de la empresa (reemplaza 'ruta_al_logo' con la ruta de tu imagen)
                 const image = new Image();
                 var imgData = 'data:image/png;base64,' + me.$store.state.app.LogoEmpresa;
@@ -342,8 +393,11 @@ export default {
                 doc.text('TELEFONO  : ' + me.$store.state.app.TelefonoEmpresa, 40, 25);
                 doc.text('Nit  : ' + me.$store.state.app.NitEmpresa, 40, 30);
                 const currentDate = new Date(); // Obtiene la fecha actual
+
+
+
                 const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
-                const formattedDate = currentDate.toLocaleDateString('es-ES', options); // Formatea la fecha como "10/11/2023"
+                const formattedDate = me.txtFechaVenta// currentDate.toLocaleDateString('es-ES', options); // Formatea la fecha como "10/11/2023"
 
                 // Configuración de la nota de venta
                 const notaDeVenta = {
@@ -427,12 +481,14 @@ export default {
                 const newWindow = window.open();
                 newWindow.document.write('<iframe width="100%" height="100%" src="' + dataUri + '"></iframe');
             } catch (error) {
-                me.UsuarioAlerta("error", "Error al generar el PDF: " + error.message);
+                this.UsuarioAlerta("error", "Error al generar el PDF: " + error.message);
             }
         }
         ,
 
-
+        cerrarVentana() {
+            this.cbxCliente()
+        },
         UsuarioAlerta(variant, msj) {
             let title, confirmButtonClass, showClass;
 
@@ -520,7 +576,8 @@ export default {
                             title: resp[i].artNombre,
                             icon: resp[i].artFoto,
                             precioV: resp[i].artPrecioVenta,
-                            cantidad: resp[i].artCantidad
+                            cantidad: resp[i].artCantidad,
+                            marca: resp[i].marNombre
                         });
                     }
                     me.booksProductos = lista;
@@ -599,6 +656,7 @@ export default {
             me.itemsAgregado = []
             me.montoRecibido = 0
             me.cambio = 0
+            me.txtFechaVenta = null
             me.cbxArticulo();
         },
 
@@ -635,8 +693,8 @@ export default {
 
         },
 
-        DetalleVenta(){
-            
+        DetalleVenta() {
+
         },
 
 
@@ -646,7 +704,7 @@ export default {
             const hoy = new Date();
             const axios = require("axios").default;
             const formData = new FormData();
-            if (me.selectedCliente === null || me.selectedTipoVenta === null || me.SelectedtipoPago === null) {
+            if (me.selectedCliente === null || me.selectedTipoVenta === null || me.SelectedtipoPago === null || me.txtFechaVenta === null) {
                 return me.UsuarioAlerta("error", "Faltan Datos Para Ingresar")
             }
             formData.append("cliId", me.selectedCliente.id); //  ID del cliente
@@ -655,6 +713,7 @@ export default {
             formData.append("vntCredito", me.selectedTipoVenta.id); // Esto puede ser 1 o 0 según corresponda (crédito o no)
             formData.append("fpId", me.SelectedtipoPago.id)  //Forma de pago 
             formData.append("vntActivo", 1); // Esto puede ser 1 o 0 según corresponda (activo o no)
+            formData.append("vntFechaCreacion", me.txtFechaVenta);
             // Construye un array de detalles de venta
             const detallesVenta = this.itemsAgregado.map(item => ({
                 artId: item.id, // ID del artículo
@@ -680,7 +739,7 @@ export default {
                         me.UsuarioAlerta("success", response.data.mensaje);
                         me.cjtReferencia = response.data.cjtReferencia;
                         me.GurdarMovimientoCaja()
-              
+
                         me.generatePDF(me.itemsAgregado)
                         me.isBusy = false;
                         me.vaciarControles()
@@ -772,6 +831,7 @@ export default {
 @import '~@resources/scss/vue/libs/vue-select.scss';
 @import "~@resources/scss/base/pages/app-ecommerce-details.scss";
 @import '~@resources/scss/vue/libs/vue-sweetalert.scss';
+@import '~@resources/scss/vue/libs/vue-flatpicker.scss';
 
 .product-image-container {
     width: 60px;

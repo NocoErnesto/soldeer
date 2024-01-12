@@ -20,7 +20,7 @@
       <!-- Login-->
       <b-col lg="4" class="d-flex align-items-center auth-bg px-2 p-lg-5">
         <b-col sm="8" md="6" lg="12" class="px-xl-2 mx-auto">
-          <b-img :src="require('@/assets/images/logo/soldder.jpg')" class="responsive-image" />
+          <b-img :src="require('@/assets/images/logo/soldeerMejoradopng.png')" class="responsive-image" />
           <div style="height: 10px"></div>
           <b-card-title title-tag="h2" class="font-weight-bold mb-1">
             Bienvenido!!
@@ -198,20 +198,14 @@ export default {
       }
       return this.sideImg;
     },
-
-
-
   },
 
   setup() {
     localStorage.removeItem("idPerfil");
-
   },
   mounted() {
 
-
   },
-
   beforeDestroy() {
 
   },
@@ -262,22 +256,7 @@ export default {
           alert(e)
         });
     },
-    makeToast(variant, user) {
-      let me = this;
-      if (variant === "success") {
-        this.$bvToast.toast("Bienvenido " + user, {
-          title: `Sistema de Reportes de Recursos Humanos`,
-          variant,
-          solid: true,
-        });
-      } else {
-        this.$bvToast.toast("Sin Autorizaciòn ", {
-          title: `Sistema de Reportes de Recursos Humanos`,
-          variant,
-          solid: true,
-        });
-      }
-    },
+ 
 
     habilitaMenu() {
       let me = this;
