@@ -281,6 +281,7 @@ class intArticuloController extends Controller
         }
     }
 
+//Crear Funcion para disminuir en almacen , analisar
 
     public function aumentarCantidadArticulo($artId, $cantidad)
     {

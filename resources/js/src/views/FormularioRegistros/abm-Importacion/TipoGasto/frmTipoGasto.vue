@@ -4,21 +4,8 @@
             <b-row>
                 <b-col md="6">
                     <b-form-group>
-                        <label class="d-inline d-lg-flex">Caja</label>
-                        <v-select v-model="selectedCaja" :options="booksCaja" label="title" placeholder="Seleccionar"
-                            style="color:brown ;">
-                            <template #option="{ title, icon }">
-                                <feather-icon :icon="icon" size="16" class="align-middle mr-50" />
-                                <span> {{ title }}</span>
-                            </template>
-                        </v-select>
-                    </b-form-group>
-                </b-col>
-                <b-col md="6">
-                    <b-form-group>
-                        <label class="d-inline d-lg-flex">Monto de Apertura</label>
-                        <b-form-input v-model="txt_acMontoApertura" :state="txt_acMontoApertura.length ? true : false"
-                            required />
+                        <label class="d-inline d-lg-flex">Nombre del Tipo de Gasto</label>
+                        <b-form-input v-model="tgasNombre" :state="tgasNombre.length ? true : false" required />
                     </b-form-group>
                 </b-col>
                 <!-- Agrega otros campos del formulario aquí -->
@@ -30,7 +17,6 @@
                         <feather-icon :icon="$store.state.app.botonIcono" class="mr-50" />
                         <span class="align-middle">{{ $store.state.app.botonTexto }} </span>
                     </b-button>
-
                 </b-col>
             </b-row>
 
@@ -123,85 +109,105 @@ export default {
             isBusy: false,
             filter: "",
             stickyHeader: true,
-            txt_acMontoApertura: 0,
-            selectedCaja: {
-                id: "0",
-                title: "",
-                icon: 'ListIcon',
-            },
-            booksCaja: [
-                {
-                    id: "",
-                    title: "",
-                    icon: 'ListIcon',
-                },
-            ],
+            tgasNombre: "",
         }
     },
     directives: {
         Ripple,
     },
-
     mounted() {
-        let me = this;
-        me.cbxCaja();
+        if (this.$store.state.app.TipoAccion === "editar" || this.$store.state.app.TipoAccion === "ver") {
+
+            this.TraerTipoGasto()
+        }
     },
     methods: {
         //acciones 
-      
+        TraerTipoGasto() {
+            let me = this;
+            const axios = require("axios").default;
+            const params = new URLSearchParams();
+            params.append('Id', this.$store.state.app.idUtilitario);
+            me.items = [];
+
+            var url = "api/auth/TraerTipoGasto";
+            me.loaded = false;
+            var lista = [];
+            axios
+                .post(url, params)
+                .then(function (response) {
+                    var resp = response.data;
+                    for (let i = 0; i < resp.length; i++) {
+                        me.tgasNombre = resp[i].tgasNombre
+
+                    }
+                    me.items = lista;
+                    me.loaded = true;
+                })
+                .catch((e) => {
+                    alert("error al obtener los datos Lista Articulo " + e);
+                });
+        },
         async Guardar() {
+
             try {
-                let me = this
+                let me = this;
                 me.showOverlay = true;
-                me.isBusy = true;
+                const hoy = new Date();
+
+                const axios = require("axios").default;
                 const formData = new FormData();
-                formData.append("cajId", me.selectedCaja.id);
-                formData.append("userId", this.$store.state.app.UsuarioId);
-                formData.append("acMontoApertura", me.txt_acMontoApertura);
-                formData.append("acActivo", 1);
-                const response = await this.$http.post("AperturaCaja", formData)
-                
+
+                me.items = [];
+                var urlm = "api/auth/agregarTipoGasto";
+                me.loaded = false;
+                me.isBusy = true;
+                formData.append("tgasNombre", me.tgasNombre);
+                // formData.append("UsuarioId", this.$store.state.app.UsuarioId);
+
+                const response = await this.$http.post("agregarTipoGasto", formData)
                 if (response.status === 201) {
                     this.showOverlay = false;
                     me.UsuarioAlerta("success", response.data.mensaje);
                     me.isBusy = false;
                 }
-                if (response.status ===200)
-                {
-                    this.showOverlay = false;
-                    me.UsuarioAlerta("error", response.data.error);
-                    me.isBusy = false;  
-                }
             } catch (error) {
-            
-                this.UsuarioAlerta("error",  error.response.data.error);
                 this.showOverlay = false;
+                this.UsuarioAlerta("error", error.response.data.error);
             }
-        }, 
+        },
+        modificar() {
+            let me = this;
+            debugger
+            me.showOverlay = true;
+            const hoy = new Date();
 
-        async cbxCaja() {
-            try {
-                let me = this;
-                const lista = [] ;
-                me.booksCaja =[]
-                const response = await this.$http.get("ListadoCaja")
-                const resp = response.data;      
-                for (let i = 0; i < resp.length; i++) {
+            const axios = require("axios").default;
+            const formData = new FormData();
 
-                    lista.push({
-                        id: resp[i].cajId,
-                        title: resp[i].cajNombre,
-                        icon: 'DollarSignIcon',
-                    });
-                }
-                me.booksCaja = lista;
-            } catch (error) {
-                console.log(error.message);
-                this.UsuarioAlerta("error", error.response );
-                this.showOverlay = false;
-             
-            }
+            me.items = [];
+            var urlm = "api/auth/modificarTipoGasto";
+            me.loaded = false;
+            me.isBusy = true;
+            formData.append('Id', this.$store.state.app.idUtilitario);
+            formData.append("tgasNombre", me.tgasNombre);
+            axios
+                .post(urlm, formData)
+                .then(function (response) {
+                    if (response.status == 200) {
+                        me.showOverlay = false;
+                        me.UsuarioAlerta("success",response.data.mensaje);
+                        me.isBusy = false;
 
+                    } else {
+                        me.UsuarioAlerta("error",response.data.error);
+                    }
+                })
+                .catch((e) => {
+                    me.UsuarioAlerta("error",e.response.data.error);
+                    me.showOverlay = false;
+                    console.log("danger", "No se Realizó la Operación: " + e);
+                });
         },
 
         //eventos 
@@ -237,11 +243,13 @@ export default {
                 buttonsStyling: true,
             });
         },
+
         validaOperacion(accion) {
             if (accion === "guardar") { this.Guardar() }
-            if (accion === "editar") { this.mofificar() }
+            if (accion === "editar") { this.modificar() }
             if (accion === "ver") { alert("ajecutara el ver") }
 
+0
         },
 
         ControlaEliminar(item, index) {
@@ -272,8 +280,10 @@ export default {
                 this.ControlaEliminar(item, index)
             }
         },
-    }
+
+    },
 }
+
 </script>
 
 <style></style>

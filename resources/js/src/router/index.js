@@ -79,9 +79,36 @@ const router = new VueRouter({
       },
     },
 
+    {
+      path: '/lista-Productos',
+      name: 'lista-productos',
+      component: () => import('@/views/FormularioRegistros/abm-Productos/ListaProducto.vue'),
+      meta: {
+        pageTitle: 'Listado de Productos',
+        breadcrumb: [
+          {
+            text: 'Per',
+            active: true,
+          },
+        ],
+      },
+    },
 
-
-
+    {
+      path: '/catalogo_productos',
+      name: 'catalogo_productos',
+      component: () => import('@/views/FormularioRegistros/abm-Productos/frm_catalogo/frmCatalogoProducto.vue'),
+      meta: {
+        pageTitle: 'Catalogo',
+        breadcrumb: [
+          {
+            text: 'Catalogo de Productos',
+            active: false,
+          },
+        ],
+        redirectIfLoggedIn: false,
+      },
+    },
     {
       path: '/Ventas',
       name: 'lista_ventas',
@@ -97,6 +124,11 @@ const router = new VueRouter({
         redirectIfLoggedIn: false,
       },
     },
+
+
+
+
+
 
 
     {
@@ -151,7 +183,7 @@ const router = new VueRouter({
 
     //no funciona el embevido
     {
-      path: '/listado_unidad', 
+      path: '/listado_unidad',
       name: 'listado_unidad',
       component: () => import('@/views/FormularioRegistros/abm-Unidad/ListaUnidad.vue'),
       meta: {
@@ -167,7 +199,7 @@ const router = new VueRouter({
     },
 
     {
-      path: '/listado_marca', 
+      path: '/listado_marca',
       name: 'listado_marca',
       component: () => import('@/views/FormularioRegistros/abm-Marca/ListaMarca.vue'),
       meta: {
@@ -182,7 +214,7 @@ const router = new VueRouter({
       },
     },
     {
-      path: '/listado_categoria', 
+      path: '/listado_categoria',
       name: 'listado_categoria',
       component: () => import('@/views/FormularioRegistros/abm-Categoria/ListaCategoria.vue'),
       meta: {
@@ -198,7 +230,7 @@ const router = new VueRouter({
     },
 
     {
-      path: '/listado_cliente', 
+      path: '/listado_cliente',
       name: 'listado_cliente',
       component: () => import('@/views/FormularioRegistros/abm-Cliente/ListaCliente.vue'),
       meta: {
@@ -213,7 +245,7 @@ const router = new VueRouter({
       },
     },
     {
-      path: '/listado_proveedor', 
+      path: '/listado_proveedor',
       name: 'listado_proveedor',
       component: () => import('@/views/FormularioRegistros/abm-Proveedor/ListaProveedor.vue'),
       meta: {
@@ -227,26 +259,36 @@ const router = new VueRouter({
         redirectIfLoggedIn: false,
       },
     },
-
-
-    
     {
-      path: '/catalogo_productos', 
-      name: 'catalogo_productos',
-      component: () => import('@/views/FormularioRegistros/abm-Productos/frm_catalogo/frmCatalogoProducto.vue'),
+      path: '/listado_tipoGasto',
+      name: 'listado_tipoGasto',
+      component: () => import('@/views/FormularioRegistros/abm-Importacion/TipoGasto/ListaTipoGasto.vue'),
       meta: {
-        pageTitle: 'Catalogo',
+        pageTitle: 'Lista Tipo Gasto',
         breadcrumb: [
           {
-            text: 'Catalogo de Productos', 
+            text: 'Tipo Gasto',
             active: false,
           },
         ],
         redirectIfLoggedIn: false,
       },
     },
-
-
+    {
+      path: '/listado_conceptoGasto',
+      name: 'listado_conceptoGasto',
+      component: () => import('@/views/FormularioRegistros/abm-Importacion/ConceptoGasto/ListaConceptoGasto.vue'),
+      meta: {
+        pageTitle: 'Lista Concepto Gasto',
+        breadcrumb: [
+          {
+            text: 'Concepto Gasto',
+            active: false,
+          },
+        ],
+        redirectIfLoggedIn: false,
+      },
+    },
 
 
     {
@@ -272,20 +314,7 @@ const router = new VueRouter({
         ],
       },
     },
-    {
-      path: '/lista-Productos',
-      name: 'lista-productos',
-      component: () => import('@/views/FormularioRegistros/abm-Productos/ListaProducto.vue'),
-      meta: {
-        pageTitle: 'Listado de Productos',
-        breadcrumb: [
-          {
-            text: 'Per',
-            active: true,
-          },
-        ],
-      },
-    },
+
 
 
     {

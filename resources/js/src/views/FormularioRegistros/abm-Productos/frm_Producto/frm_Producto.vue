@@ -1,7 +1,7 @@
 <template>
     <section>
         <!-- formularios modal UNIDAD ,MARCA,CATEGORIA -->
-        <div >
+        <div>
             <b-modal ref="frm-unidad" id="frm-unidad" ok-title="Cerrar" ok-variant="danger" ok-only size="lg" centered
                 title="Registro de Articulos" @ok="cbxUnidad" @hidden="cerrarVentana">
                 <!-- Diseño del Formulario -->
@@ -32,7 +32,7 @@
                 <b-col md="7" cols="12" class="d-flex align-items-center justify-content-center mb-2 mb-md-0">
                     <b-icon-printer></b-icon-printer>
                     <b-form @submit.prevent enctype="multipart/form-data" id="frm-articulo" ref="frm-articulo">
-                        
+
                         <b-row>
                             <b-col>
                                 <b-button-toolbar>
@@ -190,7 +190,7 @@
                                     <feather-icon :icon="$store.state.app.botonIcono" class="mr-50" />
                                     <span class="align-middle">{{ $store.state.app.botonTexto }} </span>
                                 </b-button>
-                              
+
                             </b-col>
                         </b-row>
                     </b-form>
@@ -352,7 +352,7 @@ export default {
             showOverlay: false,
             booksCategoria: [
                 {
-                    id: "", 
+                    id: "",
                     title: "",
                     icon: 'ListIcon',
                 },
@@ -482,7 +482,7 @@ export default {
         hola() {
             alert("hola")
         },
-      
+
 
         cerrarVentana() {
             this.cbxCategoria(),
@@ -877,16 +877,16 @@ export default {
                 .then(function (response) {
                     var resp = response.data;
                     for (let i = 0; i < resp.length; i++) {
-                        me.txtCodigoInterno = resp[i].artCodigo,
-                            me.txtNomArticulo = resp[i].artNombre
+                        me.txtCodigoInterno = resp[i].artCodigo
+                        me.txtNomArticulo = resp[i].artNombre
                         me.selectedCategoria = { id: resp[i].catId, title: resp[i].catNombre, }
-                        me.selectedMarca = { id: resp[i].marId, title: resp[i].marNombre },
-                            me.selectedUnidad = { id: resp[i].uniId, title: resp[i].uniNombre },
-                            me.txtCosto = resp[i].artCosto,
-                            me.txtVenta = resp[i].artPrecioVenta,
-                            me.txtCantidad = (resp[i].artCantidad).toString(),
-                            me.selectedImage = 'data:image/png;base64,' + resp[i].artFoto,
-                            me.txtCantMin = resp[i].artCantMin
+                        me.selectedMarca = { id: resp[i].marId, title: resp[i].marNombre }
+                        me.selectedUnidad = { id: resp[i].uniId, title: resp[i].uniNombre }
+                        me.txtCosto = resp[i].artCosto
+                        me.txtVenta = resp[i].artPrecioVenta
+                        me.txtCantidad = (resp[i].artCantidad).toString()
+                        me.selectedImage = 'data:image/png;base64,' + resp[i].artFoto
+                        me.txtCantMin = resp[i].artCantMin
                     }
                     me.items = lista;
                     me.loaded = true;

@@ -18,6 +18,8 @@ use App\Http\Controllers\intCategoriaController;
 use App\Http\Controllers\HeadCountController;
 use App\Http\Controllers\gntProveedorController;
 use App\Http\Controllers\gntClienteController;
+use App\Http\Controllers\imptTipoGastoController;
+use App\Http\Controllers\imptConceptogastoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -144,8 +146,27 @@ Route::group(['prefix' => 'auth'], function () {
   //gntCliente
   Route::get('ListaCliente', [gntClienteController::class, 'ListaCliente']);
   Route::post('GuaradarCliente', [gntClienteController::class, 'GuaradarCliente']);
+
+
+
+  //impttipogasto
+  Route::get('listaTipogasto', [imptTipoGastoController::class, 'listaTipogasto']);
+  Route::post('agregarTipoGasto', [imptTipoGastoController::class, 'agregarTipoGasto']);
+  Route::post('modificarTipoGasto', [imptTipoGastoController::class, 'modificarTipoGasto']);
+  Route::post('EliminarTipoGasto', [imptTipoGastoController::class, 'EliminarTipoGasto']);
+  Route::post('TraerTipoGasto', [imptTipoGastoController::class, 'TraerTipoGasto']);
+
+  
+
+//imptConceptogasto
+  Route::get('listaConceptoGasto', [imptConceptogastoController::class, 'listaConceptoGasto']);
+  Route::post('agregarConceptoGasto', [imptConceptogastoController::class, 'agregarConceptoGasto']);
+  Route::post('modificarConceptoGasto', [imptConceptogastoController::class, 'modificarConceptoGasto']);
+  Route::post('eliminarConceptoGasto', [imptConceptogastoController::class, 'eliminarConceptoGasto']);
+  Route::post('TraeConceptoGasto', [imptConceptogastoController::class, 'TraeConceptoGasto']);
+  
   Route::group(['middleware' => 'auth:api'], function () {
-    Route::get('logout', [AuthController::class, 'logout']);
+    Route::get('logout', [AuthController::class, 'logout']); 
     Route::get('user', [AuthController::class, 'user']);
   });
 });

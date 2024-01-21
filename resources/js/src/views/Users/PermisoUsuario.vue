@@ -25,8 +25,13 @@
                 <b-row>
                   <b-col>
                     <!-- AQUI TABLA PAGINAS -->
-                    <b-table id="tabla-lista-retrasos" :items="itemMenu" :fields="fieldsMenus" :filter="filter"
-                      @filtered="onFiltered" striped hover responsive="sm" :busy="isBusy" outlined
+                    <b-table id="tabla-lista-retrasos"
+                     :items="itemMenu" :fields="fieldsMenus" :filter="filter"
+                      @filtered="onFiltered" 
+                      striped 
+                      hover 
+                      responsive="sm" 
+                      :busy="isBusy" outlined
                       :sticky-header="stickyHeader" ref="selectableTable">
                       <template #cell(cheked)="data">
                         <b-form-checkbox :checked="data.item.checked" v-model="data.item.checked"
@@ -94,7 +99,8 @@
                   :items="itemRol" 
                   :fields="fieldsRol" 
                   :filter="filter"
-                    @filtered="onFiltered" hover 
+                    @filtered="onFiltered"
+                     hover 
                     :bordered="true" 
                     :busy="isBusy" 
                     outlined 
