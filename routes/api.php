@@ -20,6 +20,7 @@ use App\Http\Controllers\gntProveedorController;
 use App\Http\Controllers\gntClienteController;
 use App\Http\Controllers\imptTipoGastoController;
 use App\Http\Controllers\imptConceptogastoController;
+use App\Http\Controllers\ImptImportacionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -165,6 +166,10 @@ Route::group(['prefix' => 'auth'], function () {
   Route::post('eliminarConceptoGasto', [imptConceptogastoController::class, 'eliminarConceptoGasto']);
   Route::post('TraeConceptoGasto', [imptConceptogastoController::class, 'TraeConceptoGasto']);
   
+
+  //imptImportacion 
+  Route::post('guardarImportacion', [ImptImportacionController::class, 'guardarImportacion']);
+
   Route::group(['middleware' => 'auth:api'], function () {
     Route::get('logout', [AuthController::class, 'logout']); 
     Route::get('user', [AuthController::class, 'user']);

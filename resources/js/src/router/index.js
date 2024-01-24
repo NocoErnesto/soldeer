@@ -292,6 +292,16 @@ const router = new VueRouter({
 
 
     {
+      path: '/listado_importacion',
+      name: 'listado_importacion',
+      component: () => import('@/views/FormularioRegistros/abm-Importacion/ListaImportacion.vue'),
+      meta: {
+        pageTitle: 'Listado Importaciones',
+       
+      },   
+    },
+
+    {
       path: '/login',
       name: 'auth-login',
       component: () => import('@/views/Login.vue'),
