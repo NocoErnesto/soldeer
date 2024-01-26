@@ -37,7 +37,7 @@ use App\Http\Controllers\ImptImportacionController;
 
 Route::group(['prefix' => 'auth'], function () {
 
-  Route::get('lista',[HeadCountController::class,'lista']);
+  Route::get('lista', [HeadCountController::class, 'lista']);
 
   Route::post('login', [AuthController::class, 'login']);
   Route::post('register', [AuthController::class, 'register']);
@@ -75,9 +75,9 @@ Route::group(['prefix' => 'auth'], function () {
   Route::post('buscarPorNombre', [intArticuloController::class, 'buscarPorNombre']);
   Route::post('CantidadCategoria', [intArticuloController::class, 'CantidadCategoria']);
   Route::get('CantidadCategoria_todo', [intArticuloController::class, 'CantidadCategoria_todo']);
-  
-   
-  
+
+
+
   // vntTxnController
 
   Route::get('obtenerVentasRealizadas', [vntTxnController::class, 'obtenerVentasRealizadas']);
@@ -86,12 +86,12 @@ Route::group(['prefix' => 'auth'], function () {
   Route::post('InactiveVenta', [vntTxnController::class, 'InactiveVenta']);
   Route::post('Venta', [vntTxnController::class, 'Venta']);
   Route::post('detalleVenta', [vntTxnController::class, 'detalleVenta']);
-  
+
   // COMPRAS
   Route::get('GetAllShopping', [cmtxnController::class, 'GetAllShopping']);
   Route::post('AddShopping', [cmtxnController::class, 'AddShopping']);
   Route::post('UpdateShopping', [cmtxnController::class, 'UpdateShopping']);
-  Route::get('GetShoppingById', [cmtxnController::class, 'GetShoppingById']);  
+  Route::get('GetShoppingById', [cmtxnController::class, 'GetShoppingById']);
   Route::post('InactiveShopping', [cmtxnController::class, 'InactiveShopping']);
   Route::get('GetShoppingByProveedorId', [cmtxnController::class, 'GetShoppingByProveedorId']);
 
@@ -100,7 +100,7 @@ Route::group(['prefix' => 'auth'], function () {
   Route::post('CrearCaja', [cjCajaController::class, 'CrearCaja']);
 
 
-  
+
 
 
   //cjAperturaCierre
@@ -157,21 +157,22 @@ Route::group(['prefix' => 'auth'], function () {
   Route::post('EliminarTipoGasto', [imptTipoGastoController::class, 'EliminarTipoGasto']);
   Route::post('TraerTipoGasto', [imptTipoGastoController::class, 'TraerTipoGasto']);
 
-  
 
-//imptConceptogasto
+
+  //imptConceptogasto
   Route::get('listaConceptoGasto', [imptConceptogastoController::class, 'listaConceptoGasto']);
   Route::post('agregarConceptoGasto', [imptConceptogastoController::class, 'agregarConceptoGasto']);
   Route::post('modificarConceptoGasto', [imptConceptogastoController::class, 'modificarConceptoGasto']);
   Route::post('eliminarConceptoGasto', [imptConceptogastoController::class, 'eliminarConceptoGasto']);
   Route::post('TraeConceptoGasto', [imptConceptogastoController::class, 'TraeConceptoGasto']);
-  
+
 
   //imptImportacion 
   Route::post('guardarImportacion', [ImptImportacionController::class, 'guardarImportacion']);
+  Route::get('listaImportacion', [ImptImportacionController::class, 'listaImportacion']);
 
   Route::group(['middleware' => 'auth:api'], function () {
-    Route::get('logout', [AuthController::class, 'logout']); 
+    Route::get('logout', [AuthController::class, 'logout']);
     Route::get('user', [AuthController::class, 'user']);
   });
 });

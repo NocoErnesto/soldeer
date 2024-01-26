@@ -3,12 +3,12 @@
     <section>
         <div>
             <!-- Formulario Modal -->
-            <b-modal ref="frm-ventas" id="frm-ventas" ok-title="Cerrar" ok-variant="danger" ok-only size="xl" centered
-                title="Registro de Venta" no-close-on-backdrop @ok="obtenerVentasRealizadas">
+            <b-modal ref="frm-importacion" id="frm-importacion" ok-title="Cerrar" ok-variant="danger" ok-only size="xl"
+                centered title="Registro de Venta" no-close-on-backdrop @ok="listaImportacion">
                 <!-- Diseño del Formulario -->
-              
+             <Frm_Importacion></Frm_Importacion>
             </b-modal>
-      
+
         </div>
         <b-row>
             <b-col md="9">
@@ -30,9 +30,9 @@
                                 </b-col>
                             </b-row>
                             <b-row>
-                                <b-col  sm="12" md="4" xl="6" lg="6" class="mb-1">
+                                <b-col sm="12" md="4" xl="6" lg="6" class="mb-1">
                                     <!-- Boton Modal -->
-                                    <b-button v-ripple.400="'rgba(113, 102, 240, 0.15)'" v-b-modal.frm-ventas
+                                    <b-button v-ripple.400="'rgba(113, 102, 240, 0.15)'" v-b-modal.frm-importacion
                                         variant="success" @click="clickAccion('', 'guardar')"
                                         :class="{ 'd-none': $store.state.app.isCrea }">
                                         Nuevo Registro
@@ -54,26 +54,10 @@
                             <b-row>
                                 <b-col>
                                     <!-- Tabla --> <!-- Listado -->
-                                    <b-table id="tabla-lista-ventas"
-                                    :items="items" 
-                                    :fields="fields" 
-                                    :filter="filter"
-                                    @filtered="onFiltered" 
-                                    hover 
-                                    :bordered="true" 
-                                    :busy="isBusy" 
-                                    outlined 
-                                    stacked="sm"
-                                    small 
-                                    :style="{ fontSize: fontSize }" 
-                                    :sticky-header="stickyHeader">
-                                        <template #cell(artCantidad)="data">
-                                            <div class="d-flex align-items-center">
-                                                <b-form-input id="txtCantidad" placeholder="Cantidad" class="small-input"
-                                                    :state="data.item.artCantidad > 0 ? true : false"
-                                                    v-model="data.item.artCantidad" type="number" :min="1" />
-                                            </div>
-                                        </template>
+                                    <b-table id="tabla-lista-ventas" :items="items" :fields="fields" :filter="filter"
+                                        @filtered="onFiltered" hover :bordered="true" :busy="isBusy" outlined stacked="sm"
+                                        small :style="{ fontSize: fontSize }" :sticky-header="stickyHeader">
+
                                         <template #cell(Acción)="row">
                                             <b-row>
 
@@ -208,48 +192,52 @@ import vSelect from 'vue-select'
 
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import Frm_Importacion from './frm_Importacion/frm_Importacion.vue';
+
+
 //   import Frm_Producto from "./frm_Producto/frm_Producto.vue";
 
 export default {
     components: {
-        flatPickr,
-        BButtonToolbar,
-        BButtonGroup,
-        VBTooltip,
-        vSelect,
-        BFormFile,
-        BFormValidFeedback,
-        BFormInvalidFeedback,
-        BOverlay,
-        BFormDatepicker,
-        BInputGroupAppend,
-        BInputGroup,
-        BRow,
-        BModal,
-        VBModal,
-        BTable,
-        BAvatar,
-        BCardTitle,
-        BCardBody,
-        BCardHeader,
-        BCard,
-        BDropdown,
-        BDropdownItem,
-        BButton,
-        BFormSelect,
-        BFormTextarea,
-        BCol,
-        BFormGroup,
-        BFormInput,
-        BFormCheckbox,
-        BForm,
-        BMedia,
-        BFormText,
-        BFormDatalist,
-        BBadge,
-        BSpinner,
-   
-    },
+    flatPickr,
+    BButtonToolbar,
+    BButtonGroup,
+    VBTooltip,
+    vSelect,
+    BFormFile,
+    BFormValidFeedback,
+    BFormInvalidFeedback,
+    BOverlay,
+    BFormDatepicker,
+    BInputGroupAppend,
+    BInputGroup,
+    BRow,
+    BModal,
+    VBModal,
+    BTable,
+    BAvatar,
+    BCardTitle,
+    BCardBody,
+    BCardHeader,
+    BCard,
+    BDropdown,
+    BDropdownItem,
+    BButton,
+    BFormSelect,
+    BFormTextarea,
+    BCol,
+    BFormGroup,
+    BFormInput,
+    BFormCheckbox,
+    BForm,
+    BMedia,
+    BFormText,
+    BFormDatalist,
+    BBadge,
+    BSpinner,
+    Frm_Importacion,
+
+},
     directive: {
         "b-tooltip": VBTooltip,
         Ripple
@@ -282,11 +270,12 @@ export default {
             items: [],
             fields: [
 
-                { key: "vntNumero", label: "Nª Venta", sortable: true },
-                { key: "cliNombre", label: "Cliente", sortable: true },
-                { key: "vntFechaCreacion", label: "Fecha de Venta", sortable: true },
-                { key: "totalVenta", label: "Total Venta", sortable: true },
-                { key: "FormaPago", label: "Forma de Pago", sortable: true },
+                { key: "impNumero", label: "Nª Importacion", sortable: true },
+                { key: "provNombre", label: "Proveedor", sortable: true },
+                { key: "almNombreAlmacen", label: "ALM. Destino", sortable: true },
+                { key: "impDescripcion", label: "Descripcion", sortable: true },
+                { key: "impFechaElaboracion", label: "Fecha Elaboración", sortable: true },
+                { key: "impEstadoImportacion", label: "Estado", sortable: true },
                 { key: "Acción", sortable: false },
             ],
             itemDetalle: [],
@@ -319,8 +308,8 @@ export default {
         },
     },
     mounted() {
-        this.VerificarAperturaCaja()
-        this.obtenerVentasRealizadas()
+        // this.VerificarAperturaCaja()
+        this.listaImportacion()
         this.clickAccion('', "apertura")
         const a = window.innerWidth;
         if (a <= 576) {
@@ -643,7 +632,7 @@ export default {
 
 
 
-   
+
 
 
         eliminar(item) {
@@ -663,7 +652,7 @@ export default {
                         me.UsuarioAlerta("success", response.data.Mensaje);
 
                         me.isBusy = false;
-                        me.obtenerVentasRealizadas();
+                        me.listaImportacion();
                     } else {
                         me.UsuarioAlerta("error", response.data.error);
                     }
@@ -691,24 +680,7 @@ export default {
             me.iExiste = 0;
             me.estado = "";
         },
-        makeToast(variant) {
-            let me = this;
-            if (variant === "success") {
-                this.$bvToast.toast("Registro Exitoso ", {
-                    title: `HR Analytics`,
-                    variant,
-                    solid: true,
-                    appendToast: true,
-                });
-            } else {
-                this.$bvToast.toast("Error en el Registro ", {
-                    title: `HR Analytics`,
-                    variant,
-                    solid: true,
-                    appendToast: true,
-                });
-            }
-        },
+
         onContext(ctx) {
             // The date formatted in the locale, or the `label-no - date - selected` string
             this.formatted = ctx.selectedFormatted;
@@ -752,12 +724,12 @@ export default {
                     alert("error al obtener los datos Lista Articulo " + e);
                 });
         },
-        obtenerVentasRealizadas() {
+        listaImportacion() {
             let me = this;
             const axios = require("axios").default;
             me.items = [];
             me.isBusy = true;
-            var url = "api/auth/obtenerVentasRealizadas";
+            var url = "api/auth/listaImportacion";
             me.loaded = false;
             var lista = [];
             axios
@@ -766,12 +738,12 @@ export default {
                     var resp = response.data;
                     for (let i = 0; i < resp.length; i++) {
                         lista.push({
-                            vntId: resp[i].vntId,
-                            vntNumero: resp[i].vntNumero,
-                            cliNombre: resp[i].nombreCliente,
-                            vntFechaCreacion: resp[i].vntFechaCreacion,
-                            totalVenta: resp[i].totalVenta,
-                            FormaPago: resp[i].FormaPago
+                            impNumero: resp[i].impNumero,
+                            provNombre: resp[i].provNombre,
+                            almNombreAlmacen: resp[i].almNombreAlmacen,
+                            impDescripcion: resp[i].impDescripcion,
+                            impFechaElaboracion: resp[i].impFechaElaboracion,
+                            impEstadoImportacion: resp[i].impEstadoImportacion
                         });
                     }
                     me.items = lista;
@@ -873,7 +845,7 @@ export default {
                 })
                 .catch((e) => {
                     me.UsuarioAlerta("error", e.response.data.error);
-                    
+
                 });
         },
 

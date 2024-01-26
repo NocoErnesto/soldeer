@@ -4,31 +4,31 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+
 class ImptDetImportacionController extends Controller
 {
     public function guardarDetalleImportacion(Request $request)
     {
-       
+
 
         DB::beginTransaction();
 
         try {
-             // Mensajes de Errores Personalizados
-        $mensajesErrores = [
+            // Mensajes de Errores Personalizados
+            $mensajesErrores = [
 
-            'impId.numeric' => 'El campo ID de importación debe ser un número.',
-            'artId.numeric' => 'El campo ID de artículo debe ser un número.',
-            'dImpCantidad.numeric' => 'El campo Cantidad debe ser un número.',
-            'dImpPrecioUnitario.regex' => 'El campo Precio Unitario debe ser un número decimal.',
-            'dImpCostoUnitario.regex' => 'El campo Costo Unitario debe ser un número decimal.',
-            'dImpActivo.required' => 'El campo Activo es requerido.',
-            'dImpFechaCreacion.required' => 'El campo Fecha de Creación es requerido',
-        ];
+                'impId.numeric' => 'El campo ID de importación debe ser un número.',
+                'artId.numeric' => 'El campo ID de artículo debe ser un número.',
+                'dImpCantidad.numeric' => 'El campo Cantidad debe ser un número.',
+                'dImpPrecioUnitario.regex' => 'El campo Precio Unitario debe ser un número decimal.',
+                'dImpCostoUnitario.regex' => 'El campo Costo Unitario debe ser un número decimal.',
+                'dImpActivo.required' => 'El campo Activo es requerido.',
+                'dImpFechaCreacion.required' => 'El campo Fecha de Creación es requerido',
+            ];
             // Validación de campos
             $datosValidados = $request->validate([
-        
-                'impId' => 'numeric',
-                'artId' => 'numeric',
+
+                'impId' => 'numeric',     
                 'dImpCantidad' => 'numeric',
                 'dImpPrecioUnitario' => 'regex:/^\d+(\.\d{1,2})?$/',
                 'dImpCostoUnitario' => 'regex:/^\d+(\.\d{1,2})?$/',
@@ -39,7 +39,7 @@ class ImptDetImportacionController extends Controller
 
             $tabla = 'imptdetimportacion';
             DB::table($tabla)->insert([
-             
+
                 'impId' => $datosValidados['impId'],
                 'artId' => $datosValidados['artId'],
                 'dImpCantidad' => $datosValidados['dImpCantidad'],
@@ -62,4 +62,6 @@ class ImptDetImportacionController extends Controller
             return response()->json(['error' => 'Error al realizar la operación: ' . $e->getMessage()], 500);
         }
     }
+
+    
 }

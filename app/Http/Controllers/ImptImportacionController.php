@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\ImptDetImportacionController;
 use App\Http\Controllers\bitacoraController;
-
+use Illuminate\Database\QueryException;
 class ImptImportacionController extends Controller
 {
     //
@@ -107,6 +107,30 @@ class ImptImportacionController extends Controller
             // Capturar otras excepciones y responder con un mensaje de error general
             DB::rollBack();
             return response()->json(['error' => 'Error al realizar la operación: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function listaImportacion()
+    {
+        try {
+            $results = DB::table('imptimportacion')
+                ->join('gntproveedor', 'imptimportacion.provId', '=', 'gntproveedor.provID')
+                ->join('intalmacen', 'imptimportacion.almId', '=', 'intalmacen.almId')
+                ->join('gnttipotxn', 'imptimportacion.ttxId', '=', 'gnttipotxn.ttxId')
+                ->join('users', 'imptimportacion.userId', '=', 'users.id')
+                ->where('imptimportacion.impActivo', 1)
+                ->get();
+
+            if ($results->isEmpty()) {
+                // Mensaje si no se encuentra ningún dato
+                return "No se encontraron datos de importación.";
+            }
+
+            // Aquí puedes realizar cualquier operación adicional con los resultados obtenidos
+            return response()->json($results);
+        } catch (QueryException $e) {
+            // Mensaje en caso de error de servidor
+            return "Error de servidor: " . $e->getMessage();
         }
     }
 }
