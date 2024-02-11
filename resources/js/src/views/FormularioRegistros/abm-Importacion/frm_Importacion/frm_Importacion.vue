@@ -12,200 +12,225 @@
         </b-modal>
 
         <b-col>
-
             <b-row>
-                <b-col sm="12" md="12" xl="12">
-                    <b-card b-card border-variant="info"></b-card>
-                </b-col>
-            </b-row>
-            <b-row>
-                <b-col sm="12" md="9" xl="9" class="mb-1">
+                <b-col sm="3" md="3" xl="3" class="mb-1">
                     <b-row>
                         <b-col>
-                            <b-card border-variant="info">
+                            <b-card b-card border-variant="info">
                                 <b-row>
                                     <b-col>
-                                        <b-form-group>
-                                            <label class="d-inline d-lg-flex">Buscar Producto</label>
-                                            <v-select ref="selectedProductos" v-model="selectedProductos"
-                                                :options="booksProductos" label="title" placeholder="Seleccionar"
-                                                class="select-size-lg" :max-options="3" @input="cargarProducto()">
-                                                <template #option="{ title, icon, precioV, cantidad, marca }">
+                                        <b-row>
+                                            <b-col>
 
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="product-image-container">
-                                                            <img v-if="icon" :src="'data:image/jpeg;base64,' + icon"
-                                                                alt="Sin Foto" />
-                                                        </div>
-                                                        <div class="product-details">
-                                                            <strong>{{ title }}</strong>
-                                                            <div class="text-secondary ">Precio: {{ precioV }}</div>
-                                                            <div class="text-secondary ">Stock: {{ cantidad }}</div>
-                                                            <div class="text-secondary">Marca:{{ marca }}</div>
-                                                        </div>
-                                                    </div>
-                                                </template>
-                                            </v-select>
-                                        </b-form-group>
-                                    </b-col>
-                                </b-row>
-                                <b-row>
-                                    <b-col>
-                                        <!-- Tabla --> <!-- Listado -->
-                                        <b-table id="tabla-lista-retrasos" :items="itemsAgregado" :fields="fieldsAgregado"
-                                            :filter="filter" @filtered="onFiltered" hover :busy="isBusy" :bordered="true"
-                                            outlined stacked="sm" small :style="{ fontSize: fontSize }">
-
-                                            <template #cell(cantidad)="row">
-                                                <b-form-input v-model="row.value" type="number" min="1"
-                                                    @input="actualizarCantidad(row.item, row.value)" ref="cantidadInput"
-                                                    :state="row.value > 0 ? true : false"
-                                                    v-b-tooltip.hover.top.right="row.value > 0 ? '' : 'Cantidad debe ser mayor que cero'"
-                                                    :show="row.value === 0" :trigger="'hover focus'"
-                                                    class="v-b-tooltip-dark text-center" />
-                                            </template>
-
-                                            <template #cell(descuento)="row">
-                                                <b-form-input v-model="row.value" type="number" min="1"
-                                                    @input="precioDescuento(row.item, row.value)" ref="descuentoInput"
-                                                    :state="row.value > 0 ? true : false"
-                                                    v-b-tooltip.hover.top.right="row.value > row.item.precioV ? 'Descuento No Valido' : 'Cantidad debe ser mayor que cero'"
-                                                    :show="row.value === 0" :trigger="'hover focus'"
-                                                    class="v-b-tooltip-dark text-center" />
-                                            </template>
-                                            <template #cell(subtotal)="row">
-                                                {{ row.item.descuento > 0 ? row.item.descuento * row.item.cantidad
-                                                    : row.item.precioV * row.item.cantidad }}
-                                            </template>
-                                            <template #cell(Acción)="row">
-
-                                                <b-button v-ripple.400="'rgba(255, 255, 255, 0.15)'" variant="flat-danger"
-                                                    class="btn-icon rounded-circle"
-                                                    :class="{ 'd-none': $store.state.app.isElimina }"
-                                                    @click="clickAccion(row.item, row.index, ('eliminar'))">
-                                                    <feather-icon icon="TrashIcon" />
-                                                </b-button>
-                                            </template>
-                                            <template #table-busy>
-                                                <div class="text-center text-danger my-2">
-                                                    <b-spinner class="align-middle"></b-spinner>
-                                                    <strong>Cargando...</strong>
-                                                </div>
-                                            </template>
-                                        </b-table>
-
+                                                <b-form-group>
+                                                    <label for="tipoPago">Fecha de Elaboración:</label>
+                                                    <flat-pickr v-model="impFechaElaboracion" class="form-control" />
+                                                </b-form-group>
+                                            </b-col>
+                                        </b-row>
+                                        <b-row>
+                                            <b-col>
+                                                <b-form-group>
+                                                    <label class="d-inline d-lg-flex">Proveedor</label>
+                                                    <v-select v-model="selectedProveedor" :options="booksProveedor"
+                                                        label="title" placeholder="Seleccionar Proveedor">
+                                                        <template #option="{ title }">
+                                                            <feather-icon icon="ListIcon" size="16"
+                                                                class="align-middle mr-50" />
+                                                            <span> {{ title }}</span>
+                                                        </template>
+                                                    </v-select>
+                                                </b-form-group>
+                                            </b-col>
+                                        </b-row>
+                                        <b-row>
+                                            <b-col>
+                                                <b-form-group>
+                                                    <label class="d-inline d-lg-flex">Almacen Destino</label>
+                                                    <v-select v-model="selectedAlmacen" :options="booksAlmacen"
+                                                        label="title" placeholder="Seleccionar Almacen Destino">
+                                                        <template #option="{ title }">
+                                                            <feather-icon icon="ListIcon" size="16"
+                                                                class="align-middle mr-50" />
+                                                            <span> {{ title }}</span>
+                                                        </template>
+                                                    </v-select>
+                                                </b-form-group>
+                                            </b-col>
+                                        </b-row>
+                                        <b-row>
+                                            <b-col>
+                                                <b-form-group>
+                                                    <label class="d-inline d-lg-flex">Tipo Cambio</label>
+                                                    <b-form-input v-model="impTC" :state="impTC.length ? true : false"
+                                                        required />
+                                                </b-form-group>
+                                            </b-col>
+                                        </b-row>
+                                        <b-row>
+                                            <b-col>
+                                                <label style="font-size: 1em" class="mb-25">Descripcion</label>
+                                                <b-form-textarea :state="impDescripcion.length ? true : false"
+                                                    v-model="impDescripcion" rows="4" class="form-textarea" />
+                                                <b-badge :variant="impDescripcion.length ? 'success' : 'danger'">
+                                                    {{ impDescripcion.length + "/" + 200 }}
+                                                </b-badge>
+                                            </b-col>
+                                        </b-row>
+                                        <b-row>
+                                            <b-col>
+                                                <b-form-group>
+                                                    <label class="d-inline d-lg-flex">Esado Importación</label>
+                                                    <v-select v-model="selectedEstadoImp" :options="estadoImportacion"
+                                                        label="title" placeholder="Seleccionar  Estado">
+                                                        <template #option="{ title, icon }">
+                                                            <feather-icon :icon="icon" size="16"
+                                                                class="align-middle mr-50" />
+                                                            <span> {{ title }}</span>
+                                                        </template>
+                                                    </v-select>
+                                                </b-form-group>
+                                            </b-col>
+                                        </b-row>
+                                        <b-row>
+                                            <b-col>
+                                                <b-form-group>
+                                                    <label class="d-inline d-lg-flex">Total a Pagar</label>
+                                                    <b-form-input v-model="totalPagarCalculado" required disabled
+                                                        class="montos" />
+                                                </b-form-group>
+                                            </b-col>
+                                        </b-row>
                                     </b-col>
                                 </b-row>
                             </b-card>
                         </b-col>
                     </b-row>
-                    <b-row>
-                        <b-col>
-                            <b-button v-ripple.400="'rgba(255, 255, 255, 0.15)'" :variant="$store.state.app.variant"
-                                :class="$store.state.app.classButton" @click="validaOperacion($store.state.app.TipoAccion)">
-                                <feather-icon :icon="$store.state.app.botonIcono" class="mr-50" />
-                                <span class="align-middle">{{ $store.state.app.botonTexto }} </span>
-                            </b-button>
-                        </b-col>
-
-                    </b-row>
                 </b-col>
-                <b-col sm="12" md="3" xl="3">
+                <b-col sm="9" md="9" xl="9" lg="9" class="mb-1">
                     <b-row>
-                        <b-col>
-                            <b-card border-variant="info">
+                        <b-col sm="12" md="12" xl="12" class="mb-1">
+                            <b-row>
+                                <b-col>
+                                    <b-card border-variant="info">
+                                        <b-row>
+                                            <b-col sm="9" md="9" xl="9">
+                                                <b-form-group>
+                                                    <label class="d-inline d-lg-flex">Buscar Producto</label>
+                                                    <v-select ref="selectedProductos" v-model="selectedProductos"
+                                                        :options="booksProductos" label="title" placeholder="Seleccionar"
+                                                        class="select-size-lg" :max-options="3" @input="cargarProducto()">
+                                                        <template #option="{ title, icon, precioP, cantidad, marca }">
 
-                                <b-row>
-                                    <b-col sm="10" md="10" xl="10" lg="10">
-
-                                        <b-form-group>
-                                            <label for="tipoPago">Cliente</label>
-                                            <v-select v-model="selectedCliente" :options="gntCliente" label="title"
-                                                placeholder="Seleccionar Cliente" class="select-size-lg" :max-options="3">
-
-                                            </v-select>
-                                        </b-form-group>
-                                    </b-col>
-                                    <b-col sm="2" md="2" xl="2" lg="2">
-                                        <b-form-group>
-                                            <b-button v-ripple.400="'rgba(40, 199, 111, 0.15)'" variant="flat-success"
-                                                v-b-modal.frmCliente class="btn-icon">
-                                                <feather-icon icon="UserPlusIcon" />
-                                            </b-button>
-                                        </b-form-group>
-
-                                    </b-col>
-                                </b-row>
-                                <b-row>
-                                    <b-col sm="12" md="12" xl="12">
-                                        <b-form-group>
-                                            <label for="tipoPago">Tipo Venta</label>
-
-                                            <v-select v-model="selectedTipoVenta" :options="tipoVenta" label="title"
-                                                placeholder="Seleccionar" class="select-size-lg" :max-options="3">
-
-                                            </v-select>
-                                        </b-form-group></b-col>
-
-                                </b-row>
-                                <b-row>
-
-                                    <b-col sm="12" md="12" xl="12">
-                                        <b-form-group>
-                                            <label for="tipoPago">Forma de Pago</label>
-                                            <v-select v-model="SelectedtipoPago" :options="tiposPago" label="title"
-                                                placeholder="Seleccionar" class="select-size-lg" :max-options="3">
-                                            </v-select>
-                                        </b-form-group>
-                                    </b-col>
-                                </b-row>
-                                <b-row>
-                                    <b-col sm="12" md="12" xl="12">
-                                        <b-form-group>
-                                            <label for="tipoPago">Fecha de Venta:</label>
-                                            <!-- <b-form-datepicker v-model="txtFechaVenta"></b-form-datepicker> -->
-                                            <flat-pickr v-model="txtFechaVenta" class="form-control" />
-                                        </b-form-group>
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="product-image-container">
+                                                                    <img v-if="icon" :src="'data:image/jpeg;base64,' + icon"
+                                                                        alt="Sin Foto" />
+                                                                </div>
+                                                                <div class="product-details">
+                                                                    <strong>{{ title }}</strong>
+                                                                    <div class="text-secondary ">Precio: {{ precioP }}</div>
+                                                                    <div class="text-secondary ">Stock: {{ cantidad }}</div>
+                                                                    <div class="text-secondary">Marca:{{ marca }}</div>
+                                                                </div>
+                                                            </div>
+                                                        </template>
+                                                    </v-select>
+                                                </b-form-group>
+                                            </b-col>
+                                            <b-col sm="3" md="3" xl="3">
+                                                <b-form-group>
+                                                    <div class="d-inline d-lg-flex"> <br></div>
+                                                    <b-button v-ripple.400="'rgba(113, 102, 240, 0.15)'"
+                                                        v-b-toggle.sidebar-right variant="outline-success">
+                                                        Gestionar Gastos
+                                                    </b-button>
+                                                    <b-sidebar id="sidebar-right" bg-variant="white" right backdrop shadow
+                                                        width="600px">
+                                                        <frm-caja></frm-caja>
+                                                    </b-sidebar>
+                                                </b-form-group>
 
 
+                                            </b-col>
+                                        </b-row>
+                                        <b-row>
+                                            <b-col>
+                                                <!-- Tabla --> <!-- Listado -->
+                                                <b-table id="tabla-lista-retrasos" :items="itemsAgregado"
+                                                    :fields="fieldsAgregado" :filter="filter" @filtered="onFiltered" hover
+                                                    :busy="isBusy" :bordered="true" outlined stacked="sm" small
+                                                    :style="{ fontSize: fontSize }">
 
-                                    </b-col>
-                                </b-row>
-                                <b-row>
-                                    <b-col>
-                                        <b-form-group>
-                                            <label>Total a Pagar</label>
-                                            <b-form-input v-model="totalPagarCalculado" disabled
-                                                class="montos"></b-form-input>
-                                        </b-form-group>
-                                    </b-col>
-                                </b-row>
+                                                    <template #cell(cantidad)="row">
+                                                        <b-form-input v-model="row.value" type="number" min="1"
+                                                            @input="actualizarCantidad(row.item, row.value)"
+                                                            ref="cantidadInput" :state="row.value > 0 ? true : false"
+                                                            v-b-tooltip.hover.top.right="row.value > 0 ? '' : 'Cantidad debe ser mayor que cero'"
+                                                            :show="row.value === 0" :trigger="'hover focus'"
+                                                            class="v-b-tooltip-dark text-center" />
+                                                    </template>
 
-                                <b-row>
-                                    <b-col>
-                                        <b-form-group>
-                                            <label for="montoRecibido">Monto Recibido</label>
-                                            <b-form-input id="montoRecibido" v-model="montoRecibido"
-                                                class="montos"></b-form-input>
-                                        </b-form-group>
-                                    </b-col>
-                                    <b-col>
-                                        <b-form-group>
-                                            <label>Cambio</label>
-                                            <b-form-input v-model="cambio" class="montos" disabled></b-form-input>
-                                        </b-form-group>
-                                    </b-col>
-                                </b-row>
-                            </b-card>
+                                                    <template #cell(precioP)="row">
+                                                        <b-form-input v-model="row.value" type="number" min="1"
+                                                            @input="precioProveedor(row.item, row.value)" ref="precioPInput"
+                                                            :state="row.value > 0 ? true : false"
+                                                            v-b-tooltip.hover.top.right="row.value > row.item.precioP ? 'Precio No Valido' : 'Cantidad debe ser mayor que cero'"
+                                                            :show="row.value === 0" :trigger="'hover focus'"
+                                                            class="v-b-tooltip-dark text-center" />
+                                                    </template>
+
+                                                    <!-- @input="precioProveedor(row.item, row.value)" -->
+                                                    <template #cell(precioA)="row">
+                                                        <b-form-input v-model="row.value" type="number" min="1"
+                                                            ref="precioAInput" :state="row.value > 0 ? true : false"
+                                                            v-b-tooltip.hover.top.right="row.value > row.item.precioA ? 'Precio No Valido' : 'Cantidad debe ser mayor que cero'"
+                                                            :show="row.value === 0" :trigger="'hover focus'"
+                                                            class="v-b-tooltip-dark text-center" />
+                                                    </template>
+                                                    <template #cell(subtotal)="row">
+                                                        {{ row.item.precioP * row.item.cantidad }}
+                                                    </template>
+                                                    <template #cell(Acción)="row">
+
+                                                        <b-button v-ripple.400="'rgba(255, 255, 255, 0.15)'"
+                                                            variant="flat-danger" class="btn-icon rounded-circle"
+                                                            :class="{ 'd-none': $store.state.app.isElimina }"
+                                                            @click="clickAccion(row.item, row.index, ('eliminar'))">
+                                                            <feather-icon icon="TrashIcon" />
+                                                        </b-button>
+                                                    </template>
+                                                    <template #table-busy>
+                                                        <div class="text-center text-danger my-2">
+                                                            <b-spinner class="align-middle"></b-spinner>
+                                                            <strong>Cargando...</strong>
+                                                        </div>
+                                                    </template>
+                                                </b-table>
+
+                                            </b-col>
+
+                                        </b-row>
+                                    </b-card>
+                                </b-col>
+                            </b-row>
+                            <b-row>
+                                <b-col>
+                                    <b-button v-ripple.400="'rgba(255, 255, 255, 0.15)'" :variant="$store.state.app.variant"
+                                        :class="$store.state.app.classButton"
+                                        @click="validaOperacion($store.state.app.TipoAccion)">
+                                        <feather-icon :icon="$store.state.app.botonIcono" class="mr-50" />
+                                        <span class="align-middle">{{ $store.state.app.botonTexto }} </span>
+                                    </b-button>
+                                </b-col>
+
+                            </b-row>
                         </b-col>
 
                     </b-row>
                 </b-col>
             </b-row>
-
         </b-col>
-
-
     </section>
 </template>
 <script>
@@ -246,17 +271,24 @@ import {
     BFormValidFeedback,
     BFormInvalidFeedback,
     BIconNutFill,
+    BInputGroupPrepend,
+    BSidebar, VBToggle
 } from "bootstrap-vue";
 import Ripple from "vue-ripple-directive";
 import vSelect from 'vue-select'
 import ToastificationContent from '@core/components/toastification/ToastificationContent.vue'
-import flatPickr from 'vue-flatpickr-component'
-
+import Cleave from 'vue-cleave-component'
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import FrmCaja from '../../abm-Caja/FormularioCaja/frmCaja.vue';
+import flatPickr from 'vue-flatpickr-component'
 //import FrmCliente from '../abm-Cliente/frmCliente.vue';
 export default {
     components: {
+        flatPickr,
+        BSidebar, VBToggle,
+        BInputGroupPrepend,
+        Cleave,
         VBTooltip,
         ToastificationContent,
         BImg,
@@ -266,7 +298,6 @@ export default {
         BFormInvalidFeedback,
         BOverlay,
         BFormDatepicker,
-        flatPickr,
         BInputGroupAppend,
         BInputGroup,
         BRow,
@@ -294,19 +325,26 @@ export default {
         BBadge,
         BSpinner,
         BFormSpinbutton,
-        // FrmCliente
+        FrmCaja,// FrmCliente
+        flatPickr
     },
     data() {
         return {
+            impTC: "",
+            impDescripcion: "",
+            impFechaElaboracion: null,
             tiposPago: [],
             SelectedtipoPago: null, // Tipo de pago seleccionado
             gntCliente: [],
             selectedCliente: null,
             tipoVenta: [{ id: "0", title: "CONTADO" }, { id: "1", title: "CREDITO" }],
             selectedTipoVenta: null,
+            estadoImportacion: [{ id: 1, title: "EN ESPERA", icon: 'ListIcon', }, { id: 2, title: "RECIVIDO", icon: 'ListIcon', }],
+            selectedEstadoImp: null,
+
             totalPagar: 0, // Total a pagar
-            montoRecibido: 0,
-            cjtReferencia: 0, // Monto recibido
+            montoRecibido: 0,// Monto recibido
+            cjtReferencia: 0,
             cambio: 0, // Cambio a entregar
             vntNumero: "",
             txtFechaVenta: null,
@@ -314,28 +352,24 @@ export default {
             filter: "",
             stickyHeader: true,
             headVariant: "dark",
+            selectedProductos: null,
             booksProductos: [
             ],
-            selectedProductos: {
-                id: "0",
-                title: "",
-                icon: 'ListIcon',
-                precioV: 0,
-                descuento: 0,
-                cantidad: 0,
-                subtotal: 0
-            },
-
             itemsAgregado: [],
             fieldsAgregado: [
                 { key: "id", label: "codigo", sortable: true, tdClass: "text-center text-bold" },
                 { key: "title", label: "PRODUCTO", sortable: true, tdClass: "text-left" },
-                { key: "precioV", label: "PRECIO", sortable: true, tdClass: "text-center text-bold" },
-                { key: "descuento", label: "DESCUENTO", sortable: true, tdClass: "text-center text-bold" },
+                { key: "precioP", label: "COSTO PROVEEDOR", sortable: true, tdClass: "text-center text-bold" },
+                { key: "precioA", label: "COSTO EN ALMACEN", sortable: true, tdClass: "text-center text-bold" },
                 { key: "cantidad", label: "CANTIDAD", sortable: false, tdClass: "text-center text-bold" },
                 { key: "subtotal", label: "SUBTOTAL", sortable: false, tdClass: "text-center text-bold" },
                 { key: "Acción", sortable: false, tdClass: "text-center" },
             ],
+            selectedProveedor: null,
+            booksProveedor: [],
+            selectedAlmacen: null,
+            booksAlmacen: []
+
         }
     },
     watch: {
@@ -351,12 +385,17 @@ export default {
     directives: {
         "b-tooltip": VBTooltip,
         Ripple,
+        'b-toggle': VBToggle,
     },
 
     mounted() {
         this.cbxArticulo()
         this.cbxFormaPago()
         this.cbxCliente()
+        this.cbxProveedor()
+        this.cbxAlmacen()
+
+
 
         const movil = window.innerWidth;
         if (movil <= 576) {
@@ -364,15 +403,21 @@ export default {
             this.fontSize = 'xx-small'; // Tamaño de fuente pequeño
         }
 
+
+        if (this.$store.state.app.TipoAccion === "gasto") {
+
+            this.TraeImportacion()
+        }
+
     },
     computed: {
 
         totalPagarCalculado() {
             return this.itemsAgregado.reduce((total, item) => {
-                if (item.descuento !== 0) {
-                    this.totalPagar = total + item.descuento * item.cantidad;
+                if (item.precioP !== 0) {
+                    this.totalPagar = total + item.precioP * item.cantidad;
                 } else {
-                    this.totalPagar = total + item.precioV * item.cantidad;
+                    this.totalPagar = total + item.precioP * item.cantidad;
                 }
                 this.montoRecibido = 0;
                 this.cambio = 0;
@@ -383,15 +428,59 @@ export default {
     methods:
     {
 
+        async cbxAlmacen() {
+            try {
+                let me = this;
+                const lista = [];
+                me.booksAlmacen = []
+                const response = await this.$http.get("listarAlmacen")
+                const resp = response.data;
+                for (let i = 0; i < resp.length; i++) {
+                    lista.push({
+                        id: resp[i].almId,
+                        title: resp[i].almNombreAlmacen,
+                    });
+                }
+                me.booksAlmacen = lista;
+            } catch (error) {
+                console.log(error.message);
+                this.UsuarioAlerta("error", error.response);
+                this.showOverlay = false;
+
+            }
+
+        },
+        cbxProveedor() {
+            let me = this;
+            const axios = require("axios").default;
+            me.isBusy = true;
+            var url = "api/auth/listarProveedores";
+            me.loaded = false;
+            var lista = [];
+            axios.get(url).then(function (response) {
+                var resp = response.data;
+                for (let i = 0; i < resp.length; i++) {
+                    lista.push({
+                        id: resp[i].provID,
+                        title: resp[i].provNombre + " - " + resp[i].provTelefono,
+                    });
+                }
+                me.booksProveedor = lista;
+                me.isBusy = false;
+                me.loaded = true;
+            }).catch((e) => {
+                AlertaMensaje("error", "Obtener Datos de Proveedores, Detalles: " + e.response.data.error);
+            });
+        },
 
         generatePDF(Articulo) {
             try {
                 // Crear un nuevo documento PDF
                 const doc = new jsPDF();
                 let me = this;
-                debugger
+
                 // Agregar el logo de la empresa (reemplaza 'ruta_al_logo' con la ruta de tu imagen)
-                const image = new Image();
+                // const image = new Image();
                 var imgData = 'data:image/png;base64,' + me.$store.state.app.LogoEmpresa;
                 doc.addImage(imgData, 'PNG', 15, 5, 25, 25);
                 doc.setFont('helvetica', 'neue')
@@ -405,30 +494,30 @@ export default {
 
 
                 const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
-                const formattedDate = me.txtFechaVenta// currentDate.toLocaleDateString('es-ES', options); // Formatea la fecha como "10/11/2023"
+                const formattedDate = this.impFechaElaboracion// currentDate.toLocaleDateString('es-ES', options); // Formatea la fecha como "10/11/2023"
 
                 // Configuración de la nota de venta
-                const notaDeVenta = {
+                const notaImportacion = {
                     numero: me.cjtReferencia,
                     fecha: formattedDate,
-                    cliente: me.selectedCliente.title,
+                    proveedor: me.selectedProveedor.title,
                     direccion: '123 Calle Principal',
                     ciudad: 'Ciudad Ejemplo',
                 };
 
-
+                debugger
                 // Datos de los productos
-                const columns = ['Articulo', 'Cantidad', 'PrecioUnitario', 'Descuento', 'SubTotal'];
+                const columns = ['Articulo', 'Cantidad', 'Precio Proveedor', 'SubTotal'];
                 const rows = Articulo.map((producto) => {
-                    const precioOriginal = parseFloat(producto.precioV);
-                    const precioUnitario = producto.descuento ? parseFloat(producto.descuento) : precioOriginal;
-                    const subtotal = precioUnitario * parseFloat(producto.cantidad);
+                    const precioOriginal = parseFloat(producto.precioP);
+                    // const precioUnitario = producto.descuento ? parseFloat(producto.descuento) : precioOriginal;
+                    const subtotal = parseFloat(producto.precioP) * parseFloat(producto.cantidad);
 
                     return [
                         producto.title || '',
                         producto.cantidad || 0,
                         precioOriginal.toFixed(2), // Mostrar el precio original en la columna 'Precio'
-                        producto.descuento || 0,
+                        // producto.descuento || 0,
                         subtotal.toFixed(2),
                     ];
                 });
@@ -436,22 +525,22 @@ export default {
                 // Agregar el encabezado de la nota de venta
                 doc.setFontSize(22);
                 doc.setFont('helvetica', 'neue');
-                doc.text('Nota de Venta', 135, 10);
+                doc.text('Nota de Importación', 135, 10);
                 doc.setFontSize(14);
                 doc.setFont('helvetica', 'neue');
 
                 doc.text('N°:', 135, 20);
                 // doc.setTextColor(110, 107, 123);
-                doc.text(`${notaDeVenta.numero}`, 145, 20);
+                doc.text(`${notaImportacion.numero}`, 145, 20);
                 doc.setTextColor(0);
                 doc.setFont('helvetica', 'neue');
-                doc.text(`Fecha: ${notaDeVenta.fecha}`, 135, 28);
+                doc.text(`Fecha: ${notaImportacion.fecha}`, 135, 28);
                 doc.setFont('helvetica', 'neue');
                 // doc.setTextColor(0);
                 doc.text("Cliente:", 15, 52);
                 // doc.setTextColor(100);
                 doc.setFont('helvetica', 'neue');
-                doc.text(`${notaDeVenta.cliente}`, 35, 52);
+                doc.text(`${notaImportacion.proveedor}`, 35, 52);
                 const columnStyles = {
                     0: { halign: 'text-left' }, // Alineación centrada para la primera columna
                     1: { halign: 'center' }, // Alineación centrada para la segunda columna
@@ -469,9 +558,9 @@ export default {
 
 
                 // Calcular el total
-                // const total = Articulo.reduce((acc, producto) => acc + parseFloat(producto.precioV) * parseInt(producto.cantidad), 0);
+                // const total = Articulo.reduce((acc, producto) => acc + parseFloat(producto.precioP) * parseInt(producto.cantidad), 0);
                 const total = Articulo.reduce((acc, producto) => {
-                    const precioUnitario = producto.descuento ? parseFloat(producto.descuento) : parseFloat(producto.precioV);
+                    const precioUnitario = parseFloat(producto.precioP);
                     const subtotal = precioUnitario * parseFloat(producto.cantidad);
                     return acc + subtotal;
                 }, 0);
@@ -583,7 +672,7 @@ export default {
                             id: resp[i].artId,
                             title: resp[i].artNombre,
                             icon: resp[i].artFoto,
-                            precioV: resp[i].artPrecioVenta,
+                            precioP: resp[i].artCostoProveedor,
                             cantidad: resp[i].artCantidad,
                             marca: resp[i].marNombre
                         });
@@ -636,7 +725,7 @@ export default {
 
                 if (!productoExistente) {
                     // Si el producto no existe en la lista, lo agregamos
-                    this.itemsAgregado.push({ ...this.selectedProductos, descuento: 0, cantidad: 1, subtotal: this.selectedProductos.precioV });
+                    this.itemsAgregado.push({ ...this.selectedProductos, precioP: 0, precioA: 0, cantidad: 1, subtotal: this.selectedProductos.precioP });
                 } else {
                     // Si el producto ya existe, puedes mostrar un mensaje de alerta o realizar otra acción
                     this.UsuarioAlerta("error", 'El producto ya está en la lista');
@@ -674,13 +763,13 @@ export default {
             const axios = require("axios").default;
             const formData = new FormData();
 
-            formData.append("cajId", 1);
+            formData.append("cajId", 2);
             formData.append("userId", this.$store.state.app.UsuarioId); // ID del usuario actual
             formData.append("cjtReferencia", me.cjtReferencia);
-            formData.append("cjtModulo", "VENTAS");
-            formData.append("cjtMonto", me.totalPagar)
-            formData.append("cjtDescripcion", "Ingresos Por Venta");
-            formData.append("ttxnId", 1);
+            formData.append("cjtModulo", "Importación");
+            formData.append("cjtMonto", "-" + me.totalPagar)
+            formData.append("cjtDescripcion", "Gastos Por Importación");
+            formData.append("ttxnId", 6);
             axios
                 .post("api/auth/guardarMovimientoCaja", formData, {
                     headers: {
@@ -701,10 +790,6 @@ export default {
 
         },
 
-        DetalleVenta() {
-
-        },
-
 
         Guardar() {
             const me = this;
@@ -712,31 +797,36 @@ export default {
             const hoy = new Date();
             const axios = require("axios").default;
             const formData = new FormData();
-            if (me.selectedCliente === null || me.selectedTipoVenta === null || me.SelectedtipoPago === null || me.txtFechaVenta === null) {
-                return me.UsuarioAlerta("error", "Faltan Datos Para Ingresar")
-            }
-            formData.append("cliId", me.selectedCliente.id); //  ID del cliente
-            formData.append("userId", this.$store.state.app.UsuarioId); // ID del usuario actual
-            formData.append("ttxId", 1); //ID del tipo de transacción 
-            formData.append("vntCredito", me.selectedTipoVenta.id); // Esto puede ser 1 o 0 según corresponda (crédito o no)
-            formData.append("fpId", me.SelectedtipoPago.id)  //Forma de pago 
-            formData.append("vntActivo", 1); // Esto puede ser 1 o 0 según corresponda (activo o no)
-            formData.append("vntFechaCreacion", me.txtFechaVenta);
+
+            // if (me.selectedAlmacen === null || me.selectedProveedor === null || me.selectedEstadoImp === null || me.txtFechaVenta === null) {
+            //     return me.UsuarioAlerta("error", "Faltan Datos Para Ingresar")
+            // }
+
+            formData.append("impTC", this.impTC); //ID del tipo de transacción 
+            formData.append("provId", this.selectedProveedor.id); //  ID del proveedor
+            formData.append("almId", this.selectedAlmacen.id)
+            formData.append("impDescripcion", this.impDescripcion)
+            formData.append("ttxId", 6); //ID del tipo de transacción 
+            formData.append("impFechaElaboracion", this.impFechaElaboracion);
+            formData.append("impEstadoImportacion", this.selectedEstadoImp.title); // ID del usuario actual
+            formData.append("userId", this.$store.state.app.UsuarioId)
+            formData.append("impActivo", 1); // Esto puede ser 1 o 0 según corresponda (activo o no)
             // Construye un array de detalles de venta
-            const detallesVenta = this.itemsAgregado.map(item => ({
+            const detalleImportacion = this.itemsAgregado.map(item => ({
                 artId: item.id, // ID del artículo
-                vndCantidad: item.cantidad, // Cantidad vendida
-                vndPrecioVenta: item.precioV, // Precio de venta
-                vndDescuento: item.descuento, // Descuento (ajusta según necesites)
-                vndActivo: 1 // Activo (ajusta según necesites)
+                dImpCantidad: item.cantidad, // Cantidad Importada
+                dImpPrecioUnitario: item.precioP, // Precio del Proveedor
+                dImpCostoUnitario: item.precioA, // costo den almacen
+                dImpActivo: 1, // Activo (ajusta según necesites)
+                dImpFechaCreacion: this.txtFechaVenta
             }));
-            if (detallesVenta.length <= 0) {
+            if (detalleImportacion.length <= 0) {
                 return me.UsuarioAlerta("error", "Debe Selecinar Ariculos")
 
             }
-            formData.append("detallesVenta", JSON.stringify(detallesVenta));
+            formData.append("detalleImportacion", JSON.stringify(detalleImportacion));
             axios
-                .post("api/auth/guardarVenta", formData, {
+                .post("api/auth/guardarImportacion", formData, {
                     headers: {
                         "Content-Type": "multipart/form-data"
                     }
@@ -757,7 +847,7 @@ export default {
                     if (!e.response || !e.response.data || !e.response.data.error) {
                         // No hay error específico
                         me.showOverlay = false;
-                        me.UsuarioAlerta("error", "Error al Generar PDF" + e.message);
+                        // me.UsuarioAlerta("error", "Error al Generar PDF" + e.message);
                     } else {
                         // Hay un mensaje de error específico
                         me.showOverlay = false;
@@ -773,9 +863,9 @@ export default {
 
         },
 
-
-        precioDescuento(item, precioDescuento) {
-            item.descuento = precioDescuento
+        // no se usa ya que no se sabe si tendremos precioPs en la importaciones
+        precioProveedor(item, precioProveedor) {
+            item.precioP = precioProveedor
 
         },
 

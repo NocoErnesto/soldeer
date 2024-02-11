@@ -29,6 +29,7 @@ class ImptDetImportacionController extends Controller
             $datosValidados = $request->validate([
 
                 'impId' => 'numeric',     
+                'artId'=>'numeric',
                 'dImpCantidad' => 'numeric',
                 'dImpPrecioUnitario' => 'regex:/^\d+(\.\d{1,2})?$/',
                 'dImpCostoUnitario' => 'regex:/^\d+(\.\d{1,2})?$/',
@@ -43,8 +44,8 @@ class ImptDetImportacionController extends Controller
                 'impId' => $datosValidados['impId'],
                 'artId' => $datosValidados['artId'],
                 'dImpCantidad' => $datosValidados['dImpCantidad'],
-                'dImpPrecioUnitario' => $datosValidados['dImpPrecioUnitario'],
-                'dImpCostoUnitario' => $datosValidados['dImpCostoUnitario'],
+                'dImpPrecioUnitario' => $datosValidados['dImpPrecioUnitario'],//precio proveedor
+                'dImpCostoUnitario' => $datosValidados['dImpCostoUnitario'],// precio en almacen
                 'dImpActivo' => $datosValidados['dImpActivo'],
                 'dImpFechaCreacion' => $datosValidados['dImpFechaCreacion'],
                 // Agrega los campos adicionales según tus necesidades

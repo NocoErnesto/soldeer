@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\ImptDetImportacionController;
 use App\Http\Controllers\bitacoraController;
 use Illuminate\Database\QueryException;
+
 class ImptImportacionController extends Controller
 {
     //
@@ -23,8 +24,8 @@ class ImptImportacionController extends Controller
             'userId.numeric' => 'El campo ID de usuario debe ser un número.',
             'impFechaElaboracion.required' => 'El Campo Fecha Elaboracion es Requerido',
             'impEstadoImportacion.required' => 'El Campo Estado Importación es Requerido',
-            'impActivo.required' => 'El campo Activo es requerido.',
-            'impFechaCreacion.required' => 'El campo Fecha de Creación es requerido.',
+            // 'impActivo.required' => 'El campo Activo es requerido.',
+            // 'impFechaCreacion.required' => 'El campo Fecha de Creación es requerido.',
 
         ];
 
@@ -41,8 +42,8 @@ class ImptImportacionController extends Controller
                 'impFechaElaboracion' => 'required',
                 'impEstadoImportacion' => 'required',
                 'userId' => 'numeric',
-                'impActivo' => 'required',
-                'impFechaCreacion' => 'required',
+                // 'impActivo' => 'required',
+                // 'impFechaCreacion' => 'required',
 
             ], $mensajesErrores);
 
@@ -58,13 +59,13 @@ class ImptImportacionController extends Controller
             }
 
             //obtener el detalle de la importacion de productos
-            $detalleImportacion = $request->detalleImportacion;   //esto se descomenta para probar en postman
-            // $detalleImportacion = json_decode($request->input('detallesVenta'), true);
+            // $detalleImportacion = $request->detalleImportacion;   //esto se descomenta para probar en postman
+            $detalleImportacion = json_decode($request->input('detalleImportacion'), true);
 
 
             $tablaImportacion = 'imptimportacion';
             $impId = DB::table($tablaImportacion)->insertGetId([
-                'impNumero' => $nuevoImpNumero,
+                'impNumero' => $nuevoImpNumero, // se genera de forma automatica
                 'impTC' => $datosValidados['impTC'],
                 'provId' => $datosValidados['provId'],
                 'almId' => $datosValidados['almId'],
@@ -77,7 +78,7 @@ class ImptImportacionController extends Controller
                 'impFechaCreacion' => now(),
 
             ]);
-      
+
             //Insertar detalles de los Producto Importados en la tabla ImptDetImportacion
             $ImptDetImportacion = new ImptDetImportacionController;
 
@@ -85,6 +86,7 @@ class ImptImportacionController extends Controller
             foreach ($detalleImportacion as $detalle) {
 
                 $detalle['impId'] = $impId;
+                $detalle['dImpFechaCreacion'] = $datosValidados['impFechaElaboracion'];
                 $status = $ImptDetImportacion->guardarDetalleImportacion(new Request($detalle));
                 $statusCode = $status->getStatusCode();
                 $content = $status->getContent();
@@ -98,7 +100,7 @@ class ImptImportacionController extends Controller
             $bitacoraController->insertarBitacora($tablaImportacion, $impId, $datosValidados['userId'], 'Creación de registro', 'Nueva Importación' . "-" . $nuevoImpNumero);
 
             DB::commit();
-            return response()->json(['Mensaje' => 'Importación registrada con éxito'], 201);
+            return response()->json(['mensaje' => 'Importación ' . $nuevoImpNumero . ' registrada con éxito', 'cjtReferencia' => $nuevoImpNumero], 201);
         } catch (\Illuminate\Validation\ValidationException  $e) {
             // Capturar excepciones de validación y responder con mensajes de error personalizados
             DB::rollBack();
@@ -123,14 +125,53 @@ class ImptImportacionController extends Controller
 
             if ($results->isEmpty()) {
                 // Mensaje si no se encuentra ningún dato
-                return "No se encontraron datos de importación.";
+                return response()->json(['mensaje' => 'No se encontraron datos de importación. '], 201);
+            } else {
+                // Aquí puedes realizar cualquier operación adicional con los resultados obtenidos
+                return response()->json($results);
             }
-
-            // Aquí puedes realizar cualquier operación adicional con los resultados obtenidos
-            return response()->json($results);
         } catch (QueryException $e) {
             // Mensaje en caso de error de servidor
             return "Error de servidor: " . $e->getMessage();
+        }
+    }
+
+
+    public function TraeImportacion(Request $request)
+    {
+        $numeroImportacion = $request->input('impNumero');
+        try {
+            $resultados = DB::table('imptimportacion') 
+            ->select(
+                'imptimportacion.impId',
+                'imptimportacion.impNumero',
+                'imptimportacion.impTC',
+                'gntproveedor.provID',
+                'gntproveedor.provNombre',
+                'imptimportacion.impFechaElaboracion',
+                'imptimportacion.impEstadoImportacion',
+                'intarticulo.artId',
+                'intarticulo.artCodigo',
+                'intarticulo.artNombre',
+                'imptdetimportacion.impId as detImpId',
+                'imptdetimportacion.dImpCantidad',
+                'imptdetimportacion.dImpPrecioUnitario',
+                'imptdetimportacion.dImpCostoUnitario'
+            )
+            ->join('gntproveedor', 'imptimportacion.provId', '=', 'gntproveedor.provID')
+            ->join('imptdetimportacion', 'imptimportacion.impId', '=', 'imptdetimportacion.impId')
+            ->join('intarticulo', 'imptdetimportacion.artId', '=', 'intarticulo.artId')
+            ->where('imptdetimportacion.dImpActivo', 1)
+            ->where('imptimportacion.impNumero', $numeroImportacion)
+            ->get();
+    
+            if ($resultados->isEmpty()) {
+                return response()->json(['mensaje' => 'No se encontraron datos de importación.'], 201);
+            } else {
+                return response()->json($resultados);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['mensaje' => 'Error de servidor: ' . $e->getMessage()], 500);
         }
     }
 }

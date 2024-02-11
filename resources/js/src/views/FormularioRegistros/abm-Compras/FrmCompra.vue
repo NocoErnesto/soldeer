@@ -502,7 +502,7 @@ export default {
 
                 for (let i = 0; i < detalle.length; i++) {
                     me.itemsAgregado.push({
-                        id: detalle[i].artid,
+                        id: detalle[i].artid, 
                         title: detalle[i].artNombre,
                         cantidad: detalle[i].cmdCantidad,
                         precioC: detalle[i].cmdCosto,

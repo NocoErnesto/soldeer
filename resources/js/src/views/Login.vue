@@ -230,12 +230,14 @@ export default {
             me.$store.commit('app/setbotonEditar', true)
             me.$store.commit('app/setbotonEliminar', true)
             me.$store.commit('app/setbotonVer', true)
+            me.$store.commit('app/setbotonisGasto', true)
           } else {
             for (let i = 0; i < resp.length; i++) {
 
               var operacion = resp[i].idoperacion
               if (parseInt(operacion) === 1) {
                 me.$store.commit('app/setbotonCrear', false)
+                me.$store.commit('app/setbotonisGasto', false)
               }
 
               if (parseInt(operacion) === 2) {

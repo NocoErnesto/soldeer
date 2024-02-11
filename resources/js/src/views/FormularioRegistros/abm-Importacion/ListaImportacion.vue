@@ -4,7 +4,7 @@
         <div>
             <!-- Formulario Modal -->
             <b-modal ref="frm-importacion" id="frm-importacion" ok-title="Cerrar" ok-variant="danger" ok-only size="xl"
-                centered title="Registro de Venta" no-close-on-backdrop @ok="listaImportacion">
+                centered title="Registro de Importación" no-close-on-backdrop @ok="listaImportacion">
                 <!-- Diseño del Formulario -->
              <Frm_Importacion></Frm_Importacion>
             </b-modal>
@@ -57,7 +57,18 @@
                                     <b-table id="tabla-lista-ventas" :items="items" :fields="fields" :filter="filter"
                                         @filtered="onFiltered" hover :bordered="true" :busy="isBusy" outlined stacked="sm"
                                         small :style="{ fontSize: fontSize }" :sticky-header="stickyHeader">
-
+                                        <template #cell(impGastos)="gasto">
+                                            <b-row>
+                                                <b-col>
+                                                    <b-button v-ripple.400="'rgba(255, 255, 255, 0.15)'"
+                                                        variant="flat-info" class="btn-icon rounded-circle"
+                                                        :class="{ 'd-none': $store.state.app.isGasto }"
+                                                        @click="clickAccion(gasto.item, ('gasto'))">
+                                                        <feather-icon icon="CreditCardIcon" />
+                                                    </b-button>
+                                                </b-col>
+                                            </b-row>
+                                        </template>
                                         <template #cell(Acción)="row">
                                             <b-row>
 
@@ -276,6 +287,7 @@ export default {
                 { key: "impDescripcion", label: "Descripcion", sortable: true },
                 { key: "impFechaElaboracion", label: "Fecha Elaboración", sortable: true },
                 { key: "impEstadoImportacion", label: "Estado", sortable: true },
+                { key: "impGastos", label: "Gastos", sortable: false },
                 { key: "Acción", sortable: false },
             ],
             itemDetalle: [],
@@ -318,8 +330,6 @@ export default {
         }
     },
     methods: {
-
-
         async detalleVenta(vntNumero) {
 
             try {
@@ -571,6 +581,11 @@ export default {
             }
             if (accion === "eliminar") {
                 this.ControlaEliminar(item)
+            }
+            if (accion === "gasto") {
+                this.$store.dispatch('app/cambiaId', item["artId"])
+                this.$store.dispatch('app/cambiarTipoAccion', { tipo: accion, variant: 'success', icono: 'SaveIcon', texto: 'Guardar', Bclass: 'd-none' })
+              
             }
         },
         UsuarioAlerta(variant, msj) {

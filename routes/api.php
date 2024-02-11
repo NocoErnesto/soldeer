@@ -21,7 +21,7 @@ use App\Http\Controllers\gntClienteController;
 use App\Http\Controllers\imptTipoGastoController;
 use App\Http\Controllers\imptConceptogastoController;
 use App\Http\Controllers\ImptImportacionController;
-
+use App\Http\Controllers\IntalmacenController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -170,7 +170,13 @@ Route::group(['prefix' => 'auth'], function () {
   //imptImportacion 
   Route::post('guardarImportacion', [ImptImportacionController::class, 'guardarImportacion']);
   Route::get('listaImportacion', [ImptImportacionController::class, 'listaImportacion']);
+  Route::post('TraeImportacion', [ImptImportacionController::class, 'TraeImportacion']);
+  
 
+
+  //intAlmacen
+  Route::get('listarAlmacen', [IntalmacenController::class, 'listarAlmacen']);
+  
   Route::group(['middleware' => 'auth:api'], function () {
     Route::get('logout', [AuthController::class, 'logout']);
     Route::get('user', [AuthController::class, 'user']);

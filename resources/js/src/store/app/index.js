@@ -44,8 +44,8 @@ export default {
     isVer: true,
     ExisteMonto: true,
     NombreUsuario: "",
-    idRolSelecionado: ""
-
+    idRolSelecionado: "",
+    isGasto:true
   },
   getters: {
     // obtiene el valor actual
@@ -125,6 +125,11 @@ export default {
     setNitEmpresa(state, NitEmpresa) {
       state.NitEmpresa = NitEmpresa;
     },
+
+
+    setbotonisGasto(state, gasto) {
+      state.isGasto = gasto;
+    },
   },
   actions: {
     // cambia el valor
@@ -173,6 +178,9 @@ export default {
     },
     cambia_idRolSelecionado({ commit }, idRolSelecionado) {
       commit("setidRolSelecionado", idRolSelecionado)
-    }
+    },
+    registraGasto({ commit }, gasto) {
+      commit("setbotonisGasto", gasto);
+    },
   },
 }
