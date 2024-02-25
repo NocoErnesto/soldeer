@@ -111,18 +111,20 @@ class imptConceptogastoController extends Controller
                 'cgasNombre' => 'required|string|max:100',
                 'tgasId' => 'required|numeric',
                 'Id' => 'required|numeric',
+                'cgasEstado'
             ], $mensajesErrores);
 
             // Obtener los datos del request
             $cgasNombre = strtoupper($datosValidados['cgasNombre']);
             $tgasId = $datosValidados['tgasId'];
             $id = $datosValidados['Id'];
-
+            $cgasEstado=$datosValidados['cgasEstado'];
             // Actualizar en la base de datos
             DB::table('imptconceptogasto')
                 ->where('cgasId', $id)
                 ->update([
                     'cgasNombre' => $cgasNombre,
+                    'cgasEstado'=>$cgasEstado,
                     'tgasId' => $tgasId,
                     // 'cgasFechaModificacion' => now(), // Puedes descomentar esta línea si deseas registrar la fecha de modificación
                 ]);

@@ -22,6 +22,7 @@ use App\Http\Controllers\imptTipoGastoController;
 use App\Http\Controllers\imptConceptogastoController;
 use App\Http\Controllers\ImptImportacionController;
 use App\Http\Controllers\IntalmacenController;
+use App\Http\Controllers\ImptGastoImportacionController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -31,7 +32,7 @@ use App\Http\Controllers\IntalmacenController;
 | routes are loaded by the RouteServiceProvider within a group which
 | is assigned the "api" middleware group. Enjoy building your API!
 |
-*/
+*/ 
 
 
 
@@ -169,14 +170,19 @@ Route::group(['prefix' => 'auth'], function () {
 
   //imptImportacion 
   Route::post('guardarImportacion', [ImptImportacionController::class, 'guardarImportacion']);
-  Route::get('listaImportacion', [ImptImportacionController::class, 'listaImportacion']);
+  Route::post('listaImportacion', [ImptImportacionController::class, 'listaImportacion']);
   Route::post('TraeImportacion', [ImptImportacionController::class, 'TraeImportacion']);
-  
+
+
+  //impgastoimportacion
+  Route::post('guardarGastosImportacion', [ImptGastoImportacionController::class, 'guardarGastosImportacion']);
+
+
 
 
   //intAlmacen
   Route::get('listarAlmacen', [IntalmacenController::class, 'listarAlmacen']);
-  
+
   Route::group(['middleware' => 'auth:api'], function () {
     Route::get('logout', [AuthController::class, 'logout']);
     Route::get('user', [AuthController::class, 'user']);

@@ -101,9 +101,19 @@
                                                 </b-form-group>
                                             </b-col>
                                         </b-row>
+                                        <b-row>
+                                            <b-col>
+                                                <b-form-group>
+                                                    <label class="d-inline d-lg-flex">Importe Total</label>
+                                                    <b-form-input v-model="importeTotalCalculado" required disabled
+                                                        class="montos" />
+                                                </b-form-group>
+                                            </b-col>
+                                        </b-row>
                                     </b-col>
                                 </b-row>
                             </b-card>
+
                         </b-col>
                     </b-row>
                 </b-col>
@@ -146,12 +156,10 @@
                                                         Gestionar Gastos
                                                     </b-button>
                                                     <b-sidebar id="sidebar-right" bg-variant="white" right backdrop shadow
-                                                        width="600px">
-                                                        <frm-caja></frm-caja>
+                                                        width="700px">
+                                                       <frm-gasto-importacion></frm-gasto-importacion> 
                                                     </b-sidebar>
                                                 </b-form-group>
-
-
                                             </b-col>
                                         </b-row>
                                         <b-row>
@@ -201,9 +209,9 @@
                                                         </b-button>
                                                     </template>
                                                     <template #table-busy>
-                                                        <div class="text-center text-danger my-2">
+                                                        <div class="text-center text-danger my-5">
                                                             <b-spinner class="align-middle"></b-spinner>
-                                                            <strong>Cargando...</strong>
+                                                            <strong>Ejecutando Consulta...</strong>
                                                         </div>
                                                     </template>
                                                 </b-table>
@@ -212,6 +220,8 @@
 
                                         </b-row>
                                     </b-card>
+
+
                                 </b-col>
                             </b-row>
                             <b-row>
@@ -230,106 +240,48 @@
                     </b-row>
                 </b-col>
             </b-row>
+            <!-- <b-progress v-if="mostrarProgreso" v-model="porcentajeProgreso" :value="porcentajeProgreso" max="100" striped
+                variant="info" class="progress-bar-info" /> -->
         </b-col>
     </section>
 </template>
 <script>
 import {
-    VBTooltip,
-    BFormSpinbutton,
-    BImg,
-    BFormFile,
-    BFormDatepicker,
-
-    BRow,
-    BModal,
-    VBModal,
-    BAvatar,
-    BCardTitle,
-    BCardBody,
-    BCardHeader,
-    BCard,
-    BDropdown,
-    BDropdownItem,
-    BButton,
-    BFormSelect,
-    BCol,
-    BFormGroup,
-    BFormInput,
-    BFormCheckbox,
-    BForm,
-    BFormText,
-    BFormDatalist,
-    BBadge,
-    BTable,
-    BMedia,
-    BFormTextarea,
-    BInputGroupAppend,
-    BInputGroup,
-    BOverlay,
-    BSpinner,
-    BFormValidFeedback,
-    BFormInvalidFeedback,
-    BIconNutFill,
-    BInputGroupPrepend,
-    BSidebar, VBToggle
+    VBTooltip, BFormSpinbutton, BImg, BFormFile, BFormDatepicker, BProgress,
+    BRow, BModal, VBModal, BAvatar, BCardTitle, BCardBody, BCardHeader,
+    BCard, BDropdown, BDropdownItem, BButton, BFormSelect, BCol, BFormGroup, BFormInput,
+    BFormCheckbox, BForm, BFormText, BFormDatalist, BBadge, BTable, BMedia, BFormTextarea, BInputGroupAppend,
+    BInputGroup, BOverlay, BSpinner, BFormValidFeedback, BFormInvalidFeedback, BIconNutFill, BInputGroupPrepend, BSidebar, VBToggle
 } from "bootstrap-vue";
 import Ripple from "vue-ripple-directive";
 import vSelect from 'vue-select'
-import ToastificationContent from '@core/components/toastification/ToastificationContent.vue'
 import Cleave from 'vue-cleave-component'
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import FrmCaja from '../../abm-Caja/FormularioCaja/frmCaja.vue';
+//import FrmCaja from '../../abm-Caja/FormularioCaja/frmCaja.vue';
 import flatPickr from 'vue-flatpickr-component'
+import FrmGastoImportacion from '../GastoImportación/frmGastoImportacion.vue';
+
 //import FrmCliente from '../abm-Cliente/frmCliente.vue';
 export default {
     components: {
+        VBTooltip, BFormSpinbutton, BImg, BFormFile, BFormDatepicker, BProgress, vSelect,
+        BRow, BModal, VBModal, BAvatar, BCardTitle, BCardBody, BCardHeader,
+        BCard, BDropdown, BDropdownItem, BButton, BFormSelect, BCol, BFormGroup, BFormInput,
+        BFormCheckbox, BForm, BFormText, BFormDatalist, BBadge, BTable, BMedia, BFormTextarea, BInputGroupAppend,
+        BInputGroup, BOverlay, BSpinner, BFormValidFeedback, BFormInvalidFeedback, BIconNutFill, BInputGroupPrepend, BSidebar, VBToggle,
         flatPickr,
-        BSidebar, VBToggle,
-        BInputGroupPrepend,
-        Cleave,
-        VBTooltip,
-        ToastificationContent,
-        BImg,
-        vSelect,
-        BFormFile,
-        BFormValidFeedback,
-        BFormInvalidFeedback,
-        BOverlay,
-        BFormDatepicker,
-        BInputGroupAppend,
-        BInputGroup,
-        BRow,
-        BModal,
-        VBModal,
-        BTable,
-        BAvatar,
-        BCardTitle,
-        BCardBody,
-        BCardHeader,
-        BCard,
-        BDropdown,
-        BDropdownItem,
-        BButton,
-        BFormSelect,
-        BFormTextarea,
-        BCol,
-        BFormGroup,
-        BFormInput,
-        BFormCheckbox,
-        BForm,
-        BMedia,
-        BFormText,
-        BFormDatalist,
-        BBadge,
-        BSpinner,
-        BFormSpinbutton,
-        FrmCaja,// FrmCliente
-        flatPickr
+        FrmGastoImportacion,
+       
     },
     data() {
         return {
+            // Variable para controlar la visibilidad del componente de progreso
+            mostrarProgreso: false,
+            // Variable para controlar el porcentaje de progreso
+            porcentajeProgreso: 0,
+            impId: "",
+            impNumero: "",
             impTC: "",
             impDescripcion: "",
             impFechaElaboracion: null,
@@ -339,14 +291,14 @@ export default {
             selectedCliente: null,
             tipoVenta: [{ id: "0", title: "CONTADO" }, { id: "1", title: "CREDITO" }],
             selectedTipoVenta: null,
-            estadoImportacion: [{ id: 1, title: "EN ESPERA", icon: 'ListIcon', }, { id: 2, title: "RECIVIDO", icon: 'ListIcon', }],
+            estadoImportacion: [{ id: 1, title: "EN ESPERA", icon: 'ListIcon', }, { id: 2, title: "RECIBIDO", icon: 'ListIcon', }],
             selectedEstadoImp: null,
 
             totalPagar: 0, // Total a pagar
             montoRecibido: 0,// Monto recibido
             cjtReferencia: 0,
             cambio: 0, // Cambio a entregar
-            vntNumero: "",
+            importeTotal: 0,
             txtFechaVenta: null,
             isBusy: false,
             filter: "",
@@ -387,31 +339,26 @@ export default {
         Ripple,
         'b-toggle': VBToggle,
     },
+    created() {
+        if (this.$store.state.app.TipoAccion === "guardarGI") {
 
+            this.TraeImportacion()
+        }
+    },
     mounted() {
         this.cbxArticulo()
         this.cbxFormaPago()
         this.cbxCliente()
         this.cbxProveedor()
         this.cbxAlmacen()
-
-
-
         const movil = window.innerWidth;
         if (movil <= 576) {
             // Dispositivo móvil pequeño
             this.fontSize = 'xx-small'; // Tamaño de fuente pequeño
         }
 
-
-        if (this.$store.state.app.TipoAccion === "gasto") {
-
-            this.TraeImportacion()
-        }
-
     },
     computed: {
-
         totalPagarCalculado() {
             return this.itemsAgregado.reduce((total, item) => {
                 if (item.precioP !== 0) {
@@ -424,9 +371,85 @@ export default {
                 return this.totalPagar;
             }, 0);
         },
+        importeTotalCalculado() {
+            return this.itemsAgregado.reduce((total, item) => {
+                // Convierte item.precioP a número antes de sumar
+                const precio = parseFloat(item.precioP);
+
+                // Verifica si es un número válido
+                if (!isNaN(precio)) {
+                    return total + precio;
+                } else {
+                    return total;
+                }
+            }, 0);
+        }
     },
     methods:
     {
+        async TraeImportacion() {
+            try {
+                let me = this;
+                const lista = [];
+                me.itemsAgregado = [];
+                me.isBusy = true;
+                // this.mostrarProgreso = true;
+                const formData = new FormData();
+                formData.append("impNumero", this.$store.state.app.idUtilitario)
+                const response = await this.$http.post("TraeImportacion", formData)
+                const resp = response.data
+                // const totalDetalles = resp[0].detalles.length;
+                // let detallesCargados = 0;
+
+                me.impId = resp[0].impId
+                me.impTC = resp[0].impTC
+                me.selectedProveedor = { id: resp[0].provID, title: resp[0].provNombre }
+                me.selectedAlmacen = { id: resp[0].almId, title: resp[0].almNombreAlmacen }
+                me.impDescripcion = resp[0].impDescripcion
+                me.impFechaElaboracion = resp[0].impFechaElaboracion
+                if (resp[0].impEstadoImportacion === "EN ESPERA") {
+                    me.selectedEstadoImp = { id: 1, title: resp[0].impEstadoImportacion, icon: 'ListIcon', }
+                } else (
+                    me.selectedEstadoImp = { id: 2, title: resp[0].impEstadoImportacion, icon: 'ListIcon', }
+                )
+                for (let i = 0; i < resp[0].detalles.length; i++) {
+
+                    lista.push({
+                        id: resp[0].detalles[i].artId,
+                        title: resp[0].detalles[i].artNombre,
+                        precioP: resp[0].detalles[i].dImpPrecioUnitario,
+                        precioA: resp[0].detalles[i].dImpCostoUnitario,
+                        cantidad: resp[0].detalles[i].dImpCantidad,
+                    });
+
+                    // detallesCargados = i + 1;
+                    // this.porcentajeProgreso = (detallesCargados / totalDetalles) * 100;
+
+
+                    // await new Promise(resolve => setTimeout(resolve, 900));
+                }
+
+                me.itemsAgregado = lista;
+                me.isBusy = false;
+                me.loaded = true;
+                // this.mostrarProgreso = false;
+                // this.porcentajeProgreso = 0;
+            } catch (error) {
+                if (error.response) {
+                    // El servidor respondió con un código de estado fuera del rango de 2xx
+                    this.UsuarioAlerta("error", "Error en la respuesta del servidor: " + error.response.data.error);
+                } else if (error.request) {
+                    // La solicitud fue hecha pero no se recibió respuesta
+                    this.UsuarioAlerta("error", "No se recibió respuesta del servidor");
+                } else {
+                    // Algo sucedió en la configuración de la solicitud que desencadenó un error
+                    this.UsuarioAlerta("error", "Error de configuración de la solicitud: " + error.message);
+                }
+                this.showOverlay = false;
+            }
+
+        },
+
 
         async cbxAlmacen() {
             try {
@@ -453,7 +476,7 @@ export default {
         cbxProveedor() {
             let me = this;
             const axios = require("axios").default;
-            me.isBusy = true;
+
             var url = "api/auth/listarProveedores";
             me.loaded = false;
             var lista = [];
@@ -466,7 +489,7 @@ export default {
                     });
                 }
                 me.booksProveedor = lista;
-                me.isBusy = false;
+
                 me.loaded = true;
             }).catch((e) => {
                 AlertaMensaje("error", "Obtener Datos de Proveedores, Detalles: " + e.response.data.error);
@@ -582,7 +605,6 @@ export default {
             }
         }
         ,
-
         cerrarVentana() {
             this.cbxCliente()
         },
@@ -604,7 +626,6 @@ export default {
             } else {
                 // Puedes agregar más casos según tus necesidades.
             }
-
             this.$swal({
                 title: title,
                 text: msj,
@@ -618,7 +639,6 @@ export default {
                 buttonsStyling: true,
             });
         },
-
         //eventos 
         cbxFormaPago() {
             let me = this;
@@ -626,11 +646,9 @@ export default {
             const params = new URLSearchParams();
             // params.append('email', me.email);
             // me.tiposPago = [];
-            me.isBusy = true;
             var url = "api/auth/ListaFormaPago";
             me.loaded = false;
             var lista = [];
-
             axios
                 .get(url)
                 .then(function (response) {
@@ -643,23 +661,19 @@ export default {
                         });
                     }
                     me.tiposPago = lista;
-                    me.isBusy = false;
                     me.loaded = true;
                 })
                 .catch((e) => {
                     UsuarioAlerta("error", e.response.data.error);
                 });
-
         },
-
-
         cbxArticulo() {
             let me = this;
             const axios = require("axios").default;
             const params = new URLSearchParams();
             // params.append('email', me.email);
             me.items = [];
-            me.isBusy = true;
+
             var url = "api/auth/listArticulo";
             me.loaded = false;
             var lista = [];
@@ -678,23 +692,19 @@ export default {
                         });
                     }
                     me.booksProductos = lista;
-                    me.isBusy = false;
+
                     me.loaded = true;
                 })
                 .catch((e) => {
                     alert("error al obtener los datos Lista Articulo " + e);
                 });
         },
-
-
         cbxCliente() {
-
             let me = this;
             const axios = require("axios").default;
             const params = new URLSearchParams();
             // params.append('email', me.email);
             me.items = [];
-            me.isBusy = true;
             var url = "api/auth/ListaCliente";
             me.loaded = false;
             var lista = [];
@@ -709,13 +719,12 @@ export default {
                         });
                     }
                     me.gntCliente = lista;
-                    me.isBusy = false;
+
                     me.loaded = true;
                 })
                 .catch((e) => {
                     alert("error al obtener los datos Lista Articulo " + e);
                 });
-
         },
         cargarProducto() {
 
@@ -741,9 +750,7 @@ export default {
 
             }
         },
-
         //Metodos Con logica de Negocios
-
         vaciarControles() {
 
             const me = this
@@ -756,7 +763,6 @@ export default {
             me.txtFechaVenta = null
             me.cbxArticulo();
         },
-
         GurdarMovimientoCaja() {
 
             const me = this;
@@ -779,18 +785,13 @@ export default {
                 .then(function (response) {
                     if (response.status === 201) {
                         console.log(response.data.mensaje)
-
                     }
                 })
                 .catch((e) => {
                     me.showOverlay = false;
                     me.UsuarioAlerta("error", e.response.data.error);
                 });
-
-
         },
-
-
         Guardar() {
             const me = this;
             me.showOverlay = true;
@@ -798,10 +799,10 @@ export default {
             const axios = require("axios").default;
             const formData = new FormData();
 
-            // if (me.selectedAlmacen === null || me.selectedProveedor === null || me.selectedEstadoImp === null || me.txtFechaVenta === null) {
-            //     return me.UsuarioAlerta("error", "Faltan Datos Para Ingresar")
-            // }
-
+            if (me.selectedAlmacen === null || me.selectedProveedor === null || me.selectedEstadoImp === null || me.impFechaElaboracion === null) {
+                return me.UsuarioAlerta("error", "Faltan Datos Para Ingresar")
+            }
+           
             formData.append("impTC", this.impTC); //ID del tipo de transacción 
             formData.append("provId", this.selectedProveedor.id); //  ID del proveedor
             formData.append("almId", this.selectedAlmacen.id)
@@ -835,32 +836,29 @@ export default {
                     if (response.status === 201) {
                         me.showOverlay = false;
                         me.UsuarioAlerta("success", response.data.mensaje);
-                        me.cjtReferencia = response.data.cjtReferencia;
-                        me.GurdarMovimientoCaja()
+                        me.cjtReferencia = response.data.cjtReferencia;//revisar por que en el analisis se noto que el moviemnto de caja se realizara a l hacer la compra
+                        me.GurdarMovimientoCaja()// real ya incluyendo el gasto por importacion y sabremos cuanto realmente es lo que se gasto hasta estarn en almacen 
 
                         me.generatePDF(me.itemsAgregado)
-                        me.isBusy = false;
+
                         me.vaciarControles()
                     }
                 })
-                .catch((e) => {
-                    if (!e.response || !e.response.data || !e.response.data.error) {
-                        // No hay error específico
-                        me.showOverlay = false;
-                        // me.UsuarioAlerta("error", "Error al Generar PDF" + e.message);
-                    } else {
+                .catch((error) => {
+                    me.showOverlay = false;
+                    if (error.response && error.response.data && error.response.data.error) {
                         // Hay un mensaje de error específico
-                        me.showOverlay = false;
-
-                        me.UsuarioAlerta("error", e.response.data.error);
+                        me.UsuarioAlerta("error", error.response.data.error);
+                    } else {
+                        // No hay error específico
+                        me.UsuarioAlerta("error", "Error desconocido");
                     }
-                    // me.showOverlay = false;
-                    // me.UsuarioAlerta("error", e.response ? e.response.data.error : "Error desconocido");
+                    // Imprime más información en la consola para depuración
+                    console.error(error);
                 });
         },
         actualizarCantidad(item, nuevaCantidad) {
             item.cantidad = nuevaCantidad;
-
         },
 
         // no se usa ya que no se sabe si tendremos precioPs en la importaciones
@@ -868,11 +866,11 @@ export default {
             item.precioP = precioProveedor
 
         },
-
         onFiltered(filteredItems) {
             // Trigger pagination to update the number of buttons/pages due to filtering
             this.totalRows = filteredItems.length;
         },
+        //revisar
         eliminarProducto(index) {
             if (index >= 0 && index < this.itemsAgregado.length) {
                 this.itemsAgregado.splice(index, 1);

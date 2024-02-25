@@ -3,9 +3,8 @@
     <section>
         <div>
             <b-modal ref="frmConceptoGasto" id="frmConceptoGasto" ok-title="Cerrar" ok-variant="danger" ok-only size="lg"
-                centered title="Registro de Concepto Gasto" @ok="listaConceptoGasto">
+                centered title="Gestionar Gasto por Importación" @ok="listaConceptoGasto">
                 <!-- Diseño del Formulario -->
-                <frm-concepto></frm-concepto>
             </b-modal>
         </div>
         <div>
@@ -15,11 +14,11 @@
                     <!-- <b-card-body> -->
                     <b-row>
                         <b-col sm="4" md="5" xl="6" lg="6" class="mb-1">
-                            <!-- Boton Modal -->
-                            <b-button v-ripple.400="'rgba(113, 102, 240, 0.15)'" v-b-modal.frmConceptoGasto
-                                variant="success" @click="clickAccion('', 'guardar')"
-                                :class="{ 'd-none': $store.state.app.isCrea }">
-                                Nuevo Registro
+                            <b-button v-ripple.400="'rgba(255, 255, 255, 0.15)'" variant="outline-success"
+                                :class="$store.state.app.classButton" @click="validaOperacion($store.state.app.TipoAccion)">
+                                <feather-icon :icon="$store.state.app.botonIcono" class="mr-50" />
+                                <span>Registrar Gasto Para:</span>
+                                <span>{{ $store.state.app.idUtilitario }}</span>
                             </b-button>
                         </b-col>
                         <b-col sm="8" md="7" xl="6" lg="6">
@@ -43,51 +42,34 @@
                                 <template v-slot:cell(TipoGasto)="data">
                                     <b>{{ data.value }}</b>
                                 </template>
+
                                 <template v-slot:cell(conceptos)="data">
+
                                     <b-table :items="data.item.conceptos" :fields="conceptoFields" :filter="filter"
                                         @filtered="onFiltered" hover="true" responsive="sm" :busy="isBusy" outlined
                                         :sticky-header="stickyHeader" :bordered="true" stacked="sm" small
                                         :style="{ fontSize: fontSize }">
                                         <template v-slot:cell(cgasNombre)="conceptoData">
                                             <b-row>
-                                                <b-col style="width: 190pt;">
+                                                <b-col>
                                                     <b>{{ conceptoData.value }}</b>
                                                 </b-col>
                                             </b-row>
 
                                         </template>
-
-                                        <template #cell(Acción)="row">
-                                            <b-row>
-                                                <b-button v-ripple.400="'rgba(255, 255, 255, 0.15)'" variant="flat-warning"
-                                                    v-b-tooltip.hover.v-dark title="Seguir Editando" class="btn-icon"
-                                                    :class="{ 'd-none': $store.state.app.isEdita }"
-                                                    @click="clickAccion(row.item, ('editar'))">
-                                                    <feather-icon icon="EditIcon" />
-                                                </b-button>
-
-                                                <b-button v-ripple.400="'rgba(255, 255, 255, 0.15)'" variant="flat-success"
-                                                    v-b-tooltip.hover.v-dark title="Ver Detalle" class="btn-icon"
-                                                    :class="{ 'd-none': $store.state.app.isVer }"
-                                                    @click="clickAccion(row.item, ('ver'))">
-                                                    <feather-icon icon="EyeIcon" />
-                                                </b-button>
-
-                                                <b-button v-ripple.400="'rgba(255, 255, 255, 0.15)'" variant="flat-danger"
-                                                    class="btn-icon rounded-circle"
-                                                    :class="{ 'd-none': $store.state.app.isElimina }"
-                                                    @click="clickAccion(row.item, ('eliminar'))">
-                                                    <feather-icon icon="TrashIcon" />
-                                                </b-button>
-
-                                            </b-row>
+                                        <template #cell(precioBs)="row">
+                                            <b-form-input v-model="row.value" type="number" min="1"
+                                                @input="actualizarCantidadBs(row.item, row.value)" ref="precioBs"
+                                                :state="row.value > 0? true:false"
+                                                :trigger="'hover focus'" class="v-b-tooltip-dark text-center" />
                                         </template>
-                                        <template #cell(cgasEstado)="data">
-                                            <b-form-checkbox :checked="data.item.cgasEstado"
-                                                v-model="data.item.cgasEstado" @change="ModifiarPerfil(data.item)">
-                                            </b-form-checkbox>
 
+                                        <template #cell(precioUSD)="row">
+                                            <b-form-input v-model="row.value" type="number" min="1" ref="precioUSD"
+                                                :show="row.value === 0" :trigger="'hover focus'"
+                                                class="v-b-tooltip-dark text-center" />
                                         </template>
+
                                         <template #table-busy>
                                             <div class="text-center text-danger my-2">
                                                 <b-spinner class="align-middle"></b-spinner>
@@ -95,8 +77,9 @@
                                             </div>
                                         </template>
                                     </b-table>
+                                
                                 </template>
-                            </b-table>
+                            </b-table>                               
                         </b-col>
                     </b-row>
                     <!-- </b-card-body> -->
@@ -108,78 +91,20 @@
 </template>
 <script>
 import {
-    VBTooltip,
-    BFormFile,
-    BFormDatepicker,
-    BRow,
-    BModal,
-    VBModal,
-    BAvatar,
-    BCardTitle,
-    BCardBody,
-    BCardHeader,
-    BCard,
-    BDropdown,
-    BDropdownItem,
-    BButton,
-    BFormSelect,
-    BCol,
-    BFormGroup,
-    BFormInput,
-    BFormCheckbox,
-    BForm,
-    BFormText,
-    BFormDatalist,
-    BBadge,
-    BTable,
-    BMedia,
-    BFormTextarea,
-    BInputGroupAppend,
-    BInputGroup,
-    BOverlay,
-    BSpinner,
-    BFormValidFeedback,
-    BFormInvalidFeedback,
+    VBTooltip, BFormFile, BFormDatepicker, BRow, BModal, VBModal, BAvatar, BCardTitle,
+    BCardBody, BCardHeader, BCard, BDropdown, BDropdownItem, BButton, BFormSelect, BCol, BFormGroup, BFormInput,
+    BFormCheckbox, BForm, BFormText, BFormDatalist, BBadge, BTable, BMedia, BFormTextarea, BInputGroupAppend, BInputGroup, BOverlay,
+    BSpinner, BFormValidFeedback, BFormInvalidFeedback,
 } from "bootstrap-vue";
 import Ripple from "vue-ripple-directive";
 import vSelect from 'vue-select'
-import FrmConcepto from './frmConcepto.vue';
+
 export default {
     components: {
-        VBTooltip,
-        vSelect,
-        BFormFile,
-        BFormValidFeedback,
-        BFormInvalidFeedback,
-        BOverlay,
-        BFormDatepicker,
-        BInputGroupAppend,
-        BInputGroup,
-        BRow,
-        BModal,
-        VBModal,
-        BTable,
-        BAvatar,
-        BCardTitle,
-        BCardBody,
-        BCardHeader,
-        BCard,
-        BDropdown,
-        BDropdownItem,
-        BButton,
-        BFormSelect,
-        BFormTextarea,
-        BCol,
-        BFormGroup,
-        BFormInput,
-        BFormCheckbox,
-        BForm,
-        BMedia,
-        BFormText,
-        BFormDatalist,
-        BBadge,
-        BSpinner,
-        FrmConcepto
+        VBTooltip, vSelect, BFormFile, BFormValidFeedback, BFormInvalidFeedback, BOverlay, BFormDatepicker,
+        BInputGroupAppend, BInputGroup, BRow, BModal, VBModal, BTable, BAvatar, BCardTitle, BCardBody, BCardHeader,
+        BCard, BDropdown, BDropdownItem, BButton, BFormSelect, BFormTextarea, BCol, BFormGroup, BFormInput, BFormCheckbox,
+        BForm, BMedia, BFormText, BFormDatalist, BBadge, BSpinner,
     },
     directives: {
         "b-tooltip": VBTooltip,
@@ -188,17 +113,20 @@ export default {
     data() {
         return {
             fontSize: "",
-            conceptosGasto: [],
             TipoGastofields:
                 [
                     { key: "TipoGasto", label: "TIPO GASTO", sortable: true },
                     { key: "conceptos", label: "CONCEPTOS", sortable: true }
                 ],
+            conceptosGasto: [
+
+            ],
             conceptoFields:
                 [
-                    { key: "cgasNombre", label: "Nombre", sortable: true, tdClass: "col-nombre" },
-                    { key: "cgasEstado", label: "Estado" },
-                    { key: "Acción", sortable: false, tdClass: "col-accion" },
+                    { key: "cgasNombre", label: "Nombre", sortable: true, tdClass: "col-nombre w-25" },
+                    { key: "precioBs", label: "Monto Bs", sortable: false, tdClass: "text-center text-bold w-15" },
+                    { key: "precioUSD", label: "Monto $", sortable: false, tdClass: "text-center text-bold w-15" },
+
                 ],
             TipoAccion: null,
             stickyHeader: true,
@@ -206,7 +134,6 @@ export default {
                 // Transition name
                 name: "flip-list",
             },
-
             mesReporte: "",
             shows: true,
             isBusy: false,
@@ -224,7 +151,6 @@ export default {
             fields: [
                 { key: "id", label: "CODIGO", sortable: true },
                 { key: "cgasNombre", label: "CONCEPTO GASTO", sortable: true },
-
                 { key: "Acción", sortable: false },
             ],
 
@@ -252,28 +178,47 @@ export default {
         this.listaConceptoGasto();
     },
     methods: {
-        clickAccion(item, accion) {
+        actualizarCantidadBs(item, nuevaCantidad) {
+            item.precioBs = nuevaCantidad;
 
+            // Actualizar el concepto en conceptosGasto
+            const tipoGastoIndex = this.conceptosGasto.findIndex(tipoGasto => tipoGasto.TipoGasto === item.TipoGasto);
+            const conceptoIndex = this.conceptosGasto[tipoGastoIndex].conceptos.findIndex(concepto => concepto.cgasId === item.cgasId);
 
-            if (accion === "guardar") {
-                this.$store.dispatch('app/cambiarTipoAccion', { tipo: accion, variant: 'success', icono: 'SaveIcon', texto: 'Guardar', Bclass: '' })
+            // Verificar si el concepto existe en conceptosGasto
+            if (tipoGastoIndex !== -1 && conceptoIndex !== -1) {
+                // Actualizar el monto en el array conceptosGasto
+                this.$set(this.conceptosGasto[tipoGastoIndex].conceptos, conceptoIndex, {
+                    ...this.conceptosGasto[tipoGastoIndex].conceptos[conceptoIndex],
+                    precioBs: nuevaCantidad,
+                });
             }
-            if (accion === "editar") {
+        },
 
-                this.$store.dispatch('app/cambiaId', item["cgasId"])
-                this.$store.dispatch('app/cambiarTipoAccion', { tipo: accion, variant: 'primary', icono: 'SaveIcon', texto: 'Modificar', Bclass: '' })
+        async Guardar() {
 
-                this.$refs["frmConceptoGasto"].show();
-            }
-            if (accion === "ver") {
-                this.$store.dispatch('app/cambiaId', item["cgasId"])
-                this.$store.dispatch('app/cambiarTipoAccion', { tipo: accion, variant: 'success', icono: 'SaveIcon', texto: 'Guardar', Bclass: 'd-none' })
+            const formData = new FormData();
+            formData.append("impNumero", this.$store.state.app.idUtilitario)
+            formData.append("gastosImportacion",JSON.stringify(this.conceptosGasto))
+            try {
+                const response = await this.$http.post("guardarGastosImportacion", formData);
 
-                this.$refs["frmConceptoGasto"].show();
+                if (response.status === 201) {
+                    this.UsuarioAlerta("success", response.data.mensaje);
+                    // this.listaConceptoGasto();
+                } else {
+                    this.UsuarioAlerta("error", response.data.error);
+                }
+            } catch (error) {
+                console.error(error.message);
+                this.UsuarioAlerta("error", error.response);
             }
-            if (accion === "eliminar") {
-                this.ControlaEliminar(item)
-            }
+        },
+        validaOperacion(accion) {
+            if (accion === "guardarGI") { this.Guardar() }
+            if (accion === "editar") { this.mofificar() }
+            if (accion === "ver") { alert("ajecutara el ver") }
+
         },
         UsuarioAlerta(variant, msj) {
             let title, confirmButtonClass, showClass;
@@ -307,7 +252,7 @@ export default {
                 buttonsStyling: true,
             });
         },
-        ControlaEliminar(item) {
+        ControlaEliminar(item, index) {
             this.boxTwo = "";
             this.$bvModal
                 .msgBoxConfirm(
@@ -326,9 +271,14 @@ export default {
                 .then((value) => {
                     this.boxTwo = value;
                     if (value === true) {
-                        this.eliminar(item);
+                        this.eliminarProducto(item, index);
                     }
                 });
+        },
+        eliminarProducto(index) {
+            if (index >= 0 && index < this.conceptosGasto.length) {
+                this.conceptosGasto.splice(index, 1);
+            }
         },
         eliminar(item) {
             let me = this;
@@ -373,24 +323,28 @@ export default {
             me.iExiste = 0;
             me.estado = "";
         },
-
-
         async listaConceptoGasto() {
             try {
                 const response = await this.$http.get("listaConceptoGasto");
                 const resp = response.data;
 
-                const lista = Object.keys(resp).map(tipoGasto => ({
-                    TipoGasto: resp[tipoGasto].TipoGasto,
-                    conceptos: resp[tipoGasto].conceptos.map(concepto => ({
-                        cgasId: concepto.cgasId,
-                        cgasNombre: concepto.cgasNombre,
-                        cgasEstado: concepto.cgasEstado===1,
-                        tgasId: concepto.tgasId,
-                        cgasActivo: concepto.cgasActivo,
-                        cgasFechaCreacion: concepto.cgasFechaCreacion,
-                    })),
-                }));
+                const lista = Object.keys(resp).map(tipoGasto => (
+                    {
+                        TipoGasto: resp[tipoGasto].TipoGasto,
+                        conceptos: resp[tipoGasto].conceptos.map
+                            (concepto =>
+                            (
+                                {
+                                    cgasId: concepto.cgasId,
+                                    cgasNombre: concepto.cgasNombre,
+                                    tgasId: concepto.tgasId,
+                                    cgasActivo: concepto.cgasActivo,
+                                    cgasFechaCreacion: concepto.cgasFechaCreacion,
+                                    precioBs: 0,
+                                }
+                            )
+                            ),
+                    }));
 
                 this.conceptosGasto = lista;
             } catch (error) {

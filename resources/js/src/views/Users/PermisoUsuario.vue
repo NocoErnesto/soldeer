@@ -25,18 +25,12 @@
                 <b-row>
                   <b-col>
                     <!-- AQUI TABLA PAGINAS -->
-                    <b-table id="tabla-lista-retrasos"
-                     :items="itemMenu" :fields="fieldsMenus" :filter="filter"
-                      @filtered="onFiltered" 
-                      striped 
-                      hover 
-                      responsive="sm" 
-                      :busy="isBusy" outlined
+                    <b-table id="tabla-lista-retrasos" :items="itemMenu" :fields="fieldsMenus" :filter="filter"
+                      @filtered="onFiltered" striped hover responsive="sm" :busy="isBusy" outlined
                       :sticky-header="stickyHeader" ref="selectableTable">
                       <template #cell(cheked)="data">
                         <b-form-checkbox :checked="data.item.checked" v-model="data.item.checked"
-                          @change="ModifiarPerfil(data.item)"
-                     >
+                          @change="ModifiarPerfil(data.item)">
                         </b-form-checkbox>
 
                       </template>
@@ -87,25 +81,15 @@
             </b-col>
           </b-row>
 
-          
+
           <b-row>
             <b-col>
-              <!-- Listado --> 
+              <!-- Listado -->
 
               <b-row>
                 <b-col xs="12" sm="12" md="12" xl="12" lg="12">
-                  <b-table 
-                  id="tabla-lista-roles" 
-                  :items="itemRol" 
-                  :fields="fieldsRol" 
-                  :filter="filter"
-                    @filtered="onFiltered"
-                     hover 
-                    :bordered="true" 
-                    :busy="isBusy" 
-                    outlined 
-                    stacked="sm" 
-                    small
+                  <b-table id="tabla-lista-roles" :items="itemRol" :fields="fieldsRol" :filter="filter"
+                    @filtered="onFiltered" hover :bordered="true" :busy="isBusy" outlined stacked="sm" small
                     :style="{ fontSize: fontSize }">
                     <template #cell(accion)="row">
                       <b-button v-ripple.400="'rgba(234, 84, 85, 0.15)'" variant="flat-danger"

@@ -45,7 +45,8 @@ export default {
     ExisteMonto: true,
     NombreUsuario: "",
     idRolSelecionado: "",
-    isGasto:true
+    isGasto: true,
+    impNumero: "",
   },
   getters: {
     // obtiene el valor actual
@@ -130,6 +131,11 @@ export default {
     setbotonisGasto(state, gasto) {
       state.isGasto = gasto;
     },
+    setbotonimpNumero(state, impNumero) {
+      state.impNumero = impNumero;
+    },
+
+
   },
   actions: {
     // cambia el valor
@@ -182,5 +188,9 @@ export default {
     registraGasto({ commit }, gasto) {
       commit("setbotonisGasto", gasto);
     },
+
+    obtiene_impNumero({ commit }, impNumero) {
+      commit("setbotonimpNumero", impNumero)
+    }
   },
 }

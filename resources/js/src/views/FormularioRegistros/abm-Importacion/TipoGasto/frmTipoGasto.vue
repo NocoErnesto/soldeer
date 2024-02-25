@@ -153,9 +153,9 @@ export default {
             try {
                 let me = this;
                 me.showOverlay = true;
-                const hoy = new Date();
+                // const hoy = new Date();
 
-                const axios = require("axios").default;
+                // const axios = require("axios").default;
                 const formData = new FormData();
 
                 me.items = [];

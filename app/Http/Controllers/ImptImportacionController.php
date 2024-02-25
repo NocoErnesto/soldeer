@@ -17,9 +17,13 @@ class ImptImportacionController extends Controller
         // Mensajes de Errores Personalizados
         $mensajesErrores = [
             'impTC.numeric' => 'El campo Tipo de Cambio debe ser un número.',
+            'impTC.required' => 'El campo Tipo de Cambio es requerido.',
             'provId.numeric' => 'El campo ID de proveedor debe ser un número.',
+            'provId.required' => 'El campo ID de proveedor es requerido.',
             'almId.numeric' => 'El campo ID de almacén debe ser un número.',
+            'almId.required' => 'El campo almacen es requerido.',
             'impDescripcion.max' => 'El campo debe ser menor a 1000 caracteres',
+            'impDescripcion.required'=>'El campo Descripción es requerido',
             'ttxId.required' => 'El campo Tipo Transaccion es Requerido',
             'userId.numeric' => 'El campo ID de usuario debe ser un número.',
             'impFechaElaboracion.required' => 'El Campo Fecha Elaboracion es Requerido',
@@ -35,9 +39,9 @@ class ImptImportacionController extends Controller
             // Validación de campos
             $datosValidados = $request->validate([
                 'impTC' => 'numeric',
-                'provId' => 'numeric',
-                'almId' => 'numeric',
-                'impDescripcion' => 'max:1000',
+                'provId' => 'numeric|required',
+                'almId' => 'numeric|required',
+                'impDescripcion' => 'required|max:1000',
                 'ttxId' => 'required',
                 'impFechaElaboracion' => 'required',
                 'impEstadoImportacion' => 'required',
@@ -112,16 +116,32 @@ class ImptImportacionController extends Controller
         }
     }
 
-    public function listaImportacion()
+    public function listaImportacion(Request $request)
     {
         try {
+            // Recibe los parámetros de paginación de la solicitud
+            $page = $request->input('page', 1);
+            $perPage = $request->input('perPage', 5);
+
             $results = DB::table('imptimportacion')
+                ->select(
+                    'imptimportacion.impId',
+                    'imptimportacion.impNumero',
+                    'imptimportacion.impTC',
+                    'gntproveedor.provID',
+                    'gntproveedor.provNombre',
+                    'imptimportacion.impFechaElaboracion',
+                    'imptimportacion.impEstadoImportacion',
+                    'imptimportacion.impDescripcion',
+                    'intalmacen.almNombreAlmacen'
+                )
                 ->join('gntproveedor', 'imptimportacion.provId', '=', 'gntproveedor.provID')
                 ->join('intalmacen', 'imptimportacion.almId', '=', 'intalmacen.almId')
                 ->join('gnttipotxn', 'imptimportacion.ttxId', '=', 'gnttipotxn.ttxId')
                 ->join('users', 'imptimportacion.userId', '=', 'users.id')
                 ->where('imptimportacion.impActivo', 1)
-                ->get();
+                ->orderBy('imptimportacion.impNumero', 'desc')
+                ->paginate($perPage, ['*'], 'page', $page);
 
             if ($results->isEmpty()) {
                 // Mensaje si no se encuentra ningún dato
@@ -140,38 +160,83 @@ class ImptImportacionController extends Controller
     public function TraeImportacion(Request $request)
     {
         $numeroImportacion = $request->input('impNumero');
+
         try {
-            $resultados = DB::table('imptimportacion') 
-            ->select(
-                'imptimportacion.impId',
-                'imptimportacion.impNumero',
-                'imptimportacion.impTC',
-                'gntproveedor.provID',
-                'gntproveedor.provNombre',
-                'imptimportacion.impFechaElaboracion',
-                'imptimportacion.impEstadoImportacion',
-                'intarticulo.artId',
-                'intarticulo.artCodigo',
-                'intarticulo.artNombre',
-                'imptdetimportacion.impId as detImpId',
-                'imptdetimportacion.dImpCantidad',
-                'imptdetimportacion.dImpPrecioUnitario',
-                'imptdetimportacion.dImpCostoUnitario'
-            )
-            ->join('gntproveedor', 'imptimportacion.provId', '=', 'gntproveedor.provID')
-            ->join('imptdetimportacion', 'imptimportacion.impId', '=', 'imptdetimportacion.impId')
-            ->join('intarticulo', 'imptdetimportacion.artId', '=', 'intarticulo.artId')
-            ->where('imptdetimportacion.dImpActivo', 1)
-            ->where('imptimportacion.impNumero', $numeroImportacion)
-            ->get();
-    
-            if ($resultados->isEmpty()) {
-                return response()->json(['mensaje' => 'No se encontraron datos de importación.'], 201);
-            } else {
-                return response()->json($resultados);
+            $resultados = DB::table('imptimportacion')
+                ->select(
+                    'imptimportacion.impId',
+                    'imptimportacion.impNumero',
+                    'imptimportacion.impTC',
+                    'gntproveedor.provID',
+                    'gntproveedor.provNombre',
+                    'intalmacen.almId',
+                    'intalmacen.almNombreAlmacen',
+                    'imptimportacion.impDescripcion',
+                    'imptimportacion.impFechaElaboracion',
+                    'imptimportacion.impEstadoImportacion',
+                )
+                ->join('gntproveedor', 'imptimportacion.provId', '=', 'gntproveedor.provID')
+                ->join('imptdetimportacion', 'imptimportacion.impId', '=', 'imptdetimportacion.impId')
+                ->join('intalmacen','imptimportacion.almId','=','intalmacen.almId')
+                ->where('imptdetimportacion.dImpActivo', 1)
+                ->where('imptimportacion.impNumero', $numeroImportacion)
+                ->distinct()
+                ->get();
+
+            $responseArray = [];
+
+            foreach ($resultados as $resultado) {
+                $importacion = [
+                    'impId' => $resultado->impId,
+                    'impNumero' => $resultado->impNumero,
+                    'impTC' => $resultado->impTC,
+                    'provID' => $resultado->provID,
+                    'provNombre' => $resultado->provNombre,
+                    'almId'=>$resultado->almId,
+                    'almNombreAlmacen'=>$resultado->almNombreAlmacen,
+                    'impDescripcion'=>$resultado->impDescripcion,
+                    'impFechaElaboracion' => $resultado->impFechaElaboracion,
+                    'impEstadoImportacion' => $resultado->impEstadoImportacion,
+                    'detalles' => [],
+                ];
+
+                $detalles = DB::table('intarticulo')
+                    ->select(
+                        'intarticulo.artId',
+                        'intarticulo.artCodigo',
+                        'intarticulo.artNombre',
+                        'imptdetimportacion.impId as detImpId',
+                        'imptdetimportacion.dImpCantidad',
+                        'imptdetimportacion.dImpPrecioUnitario',
+                        'imptdetimportacion.dImpCostoUnitario'
+                    )
+                    ->join('imptdetimportacion', 'intarticulo.artId', '=', 'imptdetimportacion.artId')
+                    ->where('imptdetimportacion.dImpActivo', 1)
+                    ->where('imptdetimportacion.impId', $resultado->impId)
+                    ->get();
+
+                foreach ($detalles as $detalle) {
+                    $importacion['detalles'][] = [
+                        'artId' => $detalle->artId,
+                        'artCodigo' => $detalle->artCodigo,
+                        'artNombre' => $detalle->artNombre,
+                        'detImpId' => $detalle->detImpId,
+                        'dImpCantidad' => $detalle->dImpCantidad,
+                        'dImpPrecioUnitario' => $detalle->dImpPrecioUnitario,
+                        'dImpCostoUnitario' => $detalle->dImpCostoUnitario,
+                    ];
+                }
+
+                $responseArray[] = $importacion;
             }
+
+            return response()->json($responseArray);
+        }  catch (\Illuminate\Database\QueryException $e) {
+            return response()->json(['error' => 'Error de base de datos: ' . $e->getMessage()], 500);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['error' => 'Error de validación: ' . $e->errors()], 422);
         } catch (\Exception $e) {
-            return response()->json(['mensaje' => 'Error de servidor: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Error inesperado: ' . $e->getMessage()], 500);
         }
     }
 }

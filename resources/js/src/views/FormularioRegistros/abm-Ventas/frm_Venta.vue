@@ -338,7 +338,6 @@ export default {
         }
 
 
-
     },
     directives: {
         "b-tooltip": VBTooltip,
